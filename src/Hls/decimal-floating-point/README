@@ -1,0 +1,1 @@
+﻿decimal-floating-point = *(DIGIT) "." 1*(DIGIT)
