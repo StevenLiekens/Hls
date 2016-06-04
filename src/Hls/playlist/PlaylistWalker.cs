@@ -14,15 +14,15 @@ namespace Hls.playlist
     {
         private readonly IParser<Duration, TimeSpan> durationParser;
 
+        private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
+
         private readonly IParser<ExtTargetDuration, TimeSpan> targetDurationParser;
 
         private readonly IParser<ExtVersion, int> versionParser;
 
-        private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
-
-        private int sequence = 0;
-
         private MediaSegment currentSegment;
+
+        private int sequence;
 
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
@@ -48,9 +48,28 @@ namespace Hls.playlist
             currentSegment = new MediaSegment();
         }
 
+        public void Enter(ExtMediaSequence mediaSequence)
+        {
+            if (currentSegment != null)
+            {
+                throw new InvalidOperationException(
+                    "The EXT-X-MEDIA-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
+            }
+        }
+
         public void Exit(Playlist playlist)
         {
             Result.Complete();
+        }
+
+        public void Exit(UniformResourceIdentifier uri)
+        {
+            if (currentSegment == null)
+            {
+                return;
+            }
+            currentSegment.Sequence = sequence++;
+            Result.MediaSegments.Add(currentSegment);
         }
 
         public bool Walk(ExtVersion version)
@@ -83,24 +102,10 @@ namespace Hls.playlist
             return false;
         }
 
-        public void Enter(ExtMediaSequence mediaSequence)
-        {
-            if (currentSegment != null)
-            {
-                throw new InvalidOperationException("The EXT-X-MEDIA-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
-            }
-        }
-
         public bool Walk(ExtMediaSequence mediaSequence)
         {
             sequence = mediaSequenceParser.Parse(mediaSequence);
             return false;
-        }
-
-        public void Exit(UniformResourceIdentifier uri)
-        {
-            currentSegment.Sequence = sequence++;
-            Result.MediaSegments.Add(currentSegment);
         }
     }
 }
