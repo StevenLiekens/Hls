@@ -1,14 +1,16 @@
 ﻿using System;
 using Hls.duration;
 using Hls.EXTINF;
+using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
+using Hls.playlist;
 using Hls.title;
 using Txt.Core;
 using Uri.URI;
 
-namespace Hls.playlist
+namespace Hls
 {
     public class PlaylistWalker : Walker
     {
@@ -20,20 +22,26 @@ namespace Hls.playlist
 
         private readonly IParser<ExtVersion, int> versionParser;
 
+        private readonly IParser<ExtKey, Key> keyParser;
+
         private MediaSegment currentSegment;
 
         private int sequence;
+
+        private Key key;
 
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
             IParser<ExtTargetDuration, TimeSpan> targetDurationParser,
             IParser<Duration, TimeSpan> durationParser,
-            IParser<ExtMediaSequence, int> mediaSequenceParser)
+            IParser<ExtMediaSequence, int> mediaSequenceParser,
+            IParser<ExtKey, Key> keyParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
             this.durationParser = durationParser;
             this.mediaSequenceParser = mediaSequenceParser;
+            this.keyParser = keyParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -69,6 +77,7 @@ namespace Hls.playlist
                 return;
             }
             currentSegment.Sequence = sequence++;
+            currentSegment.Key = key;
             Result.MediaSegments.Add(currentSegment);
         }
 
@@ -86,12 +95,20 @@ namespace Hls.playlist
 
         public bool Walk(Duration duration)
         {
+            if (currentSegment == null)
+            {
+                throw new InvalidOperationException();
+            }
             currentSegment.Duration = durationParser.Parse(duration);
             return false;
         }
 
         public bool Walk(Title title)
         {
+            if (currentSegment == null)
+            {
+                throw new InvalidOperationException();
+            }
             currentSegment.Title = title.Text;
             return false;
         }
@@ -105,6 +122,12 @@ namespace Hls.playlist
         public bool Walk(ExtMediaSequence mediaSequence)
         {
             sequence = mediaSequenceParser.Parse(mediaSequence);
+            return false;
+        }
+
+        public bool Walk(ExtKey key)
+        {
+            this.key = keyParser.Parse(key);
             return false;
         }
     }

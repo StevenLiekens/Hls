@@ -11,5 +11,7 @@ namespace Hls
         public string Title { get; set; }
 
         public int Sequence { get; set; }
+
+        public Key Key { get; set; }
     }
 }

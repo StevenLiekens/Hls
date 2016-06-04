@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hls.attribute;
+using Hls.attribute_list;
+using Hls.attribute_value;
+using Hls.decimal_floating_point;
+using Hls.decimal_integer;
+using Hls.decimal_resolution;
 using Hls.duration;
+using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
+using Hls.hexadecimal_sequence;
 using Hls.playlist;
+using Hls.quoted_string;
+using Hls.signed_decimal_floating_point;
 using SimpleInjector;
 using Txt.Core;
 using Txt.ABNF;
@@ -72,7 +82,21 @@ namespace Hls
             {
                 throw new InvalidOperationException();
             }
-            var walker = new PlaylistWalker(new ExtVersionParser(), new ExtTargetDurationParser(), new DurationParser(), new ExtMediaSequenceParser());
+            var extVersionParser = new ExtVersionParser();
+            var extTargetDurationParser = new ExtTargetDurationParser();
+            var durationParser = new DurationParser();
+            var extMediaSequenceParser = new ExtMediaSequenceParser();
+            var hexadecimalSequenceParser = new HexadecimalSequenceParser();
+            var decimalIntegerParser = new DecimalIntegerParser();
+            var decimalResolutionParser = new DecimalResolutionParser(decimalIntegerParser);
+            var decimalFloatingPointParser = new DecimalFloatingPointParser();
+            var signedDecimalFloatingPointParser = new SignedDecimalFloatingPointParser(decimalFloatingPointParser);
+            var quotedStringParser = new QuotedStringParser();
+            var attributeValueParser = new AttributeValueParser(hexadecimalSequenceParser, decimalResolutionParser, decimalFloatingPointParser, signedDecimalFloatingPointParser, decimalIntegerParser, quotedStringParser);
+            var attributeParser = new AttributeParser(attributeValueParser);
+            var attributeListParser = new AttributeListParser(attributeParser);
+            var extKeyParser = new ExtKeyParser(attributeListParser);
+            var walker = new PlaylistWalker(extVersionParser, extTargetDurationParser, durationParser, extMediaSequenceParser, extKeyParser);
             result.Element.Walk(walker);
             return walker.Result;
         }
