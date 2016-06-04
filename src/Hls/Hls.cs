@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hls.duration;
+using Hls.EXT_X_TARGETDURATION;
+using Hls.EXT_X_VERSION;
 using Hls.playlist;
 using SimpleInjector;
 using Txt.Core;
@@ -9,11 +12,11 @@ using Registration = Txt.Core.Registration;
 
 namespace Hls
 {
-    public class PlaylistParser
+    public class Hls
     {
         private readonly ILexer<Playlist> playlistLexer;
 
-        public PlaylistParser(ILexer<Playlist> playlistLexer)
+        public Hls(ILexer<Playlist> playlistLexer)
         {
             if (playlistLexer == null)
             {
@@ -22,7 +25,7 @@ namespace Hls
             this.playlistLexer = playlistLexer;
         }
 
-        public static PlaylistParser CreateDefault()
+        public static Hls CreateDefault()
         {
             var container = new Container();
             var registrations = new List<Registration>();
@@ -45,10 +48,10 @@ namespace Hls
                 }
             }
             container.Verify();
-            return container.GetInstance<PlaylistParser>();
+            return container.GetInstance<Hls>();
         }
 
-        public Playlist Parse(string text)
+        public PlaylistFile Parse(string text)
         {
             if (text == null)
             {
@@ -66,9 +69,11 @@ namespace Hls
             }
             if (!result.Success)
             {
-                throw new InvalidOperationException(result.Text);
+                throw new InvalidOperationException();
             }
-            return result.Element;
+            var walker = new PlaylistWalker(new ExtVersionParser(), new ExtTargetDurationParser(), new DurationParser());
+            result.Element.Walk(walker);
+            return walker.Result;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+﻿using System;
 using Xunit;
 
 namespace Hls.Tests
@@ -18,9 +18,28 @@ http://media.example.com/second.ts
 http://media.example.com/third.ts
 #EXT-X-ENDLIST
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
-            Assert.NotNull(result);
+            Assert.Equal(TimeSpan.FromSeconds(10), result.TargetDuration);
+            Assert.Collection(result.Segments,
+                first =>
+                {
+                    Assert.Equal(new TimeSpan(0, 0, 0, 9, 9), first.Duration);
+                    Assert.Null(first.Title);
+                    Assert.Equal("http://media.example.com/first.ts", first.Location.ToString());
+                },
+                second =>
+                {
+                    Assert.Equal(new TimeSpan(0, 0, 0, 9, 9), second.Duration);
+                    Assert.Null(second.Title);
+                    Assert.Equal("http://media.example.com/second.ts", second.Location.ToString());
+                },
+                third =>
+                {
+                    Assert.Equal(new TimeSpan(0, 0, 0, 3, 3), third.Duration);
+                    Assert.Null(third.Title);
+                    Assert.Equal("http://media.example.com/third.ts", third.Location.ToString());
+                });
         }
 
         [Fact]
@@ -38,7 +57,7 @@ https://priv.example.com/fileSequence2681.ts
 #EXTINF:7.975,
 https://priv.example.com/fileSequence2682.ts
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.NotNull(result);
         }
@@ -65,7 +84,7 @@ http://media.example.com/fileSequence52-C.ts
 #EXTINF:15.0,
 http://media.example.com/fileSequence53-A.ts
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.NotNull(result);
         }
@@ -83,7 +102,7 @@ http://example.com/hi.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5""
 http://example.com/audio-only.m3u8
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.NotNull(result);
         }
@@ -104,7 +123,7 @@ hi/audio-video.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5""
 audio-only.m3u8
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.NotNull(result);
         }
@@ -125,7 +144,7 @@ hi/video-only.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5"",AUDIO=""aac""
 main/english-audio.m3u8
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.NotNull(result);
         }
@@ -155,7 +174,7 @@ mid/main/audio-video.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=7680000,CODECS=""..."",VIDEO=""hi""
 hi/main/audio-video.m3u8
 ";
-            var parser = PlaylistParser.CreateDefault();
+            var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.NotNull(result);
         }
