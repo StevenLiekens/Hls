@@ -9,5 +9,7 @@ namespace Hls
         public System.Uri Location { get; set; }
 
         public string Title { get; set; }
+
+        public int Sequence { get; set; }
     }
 }

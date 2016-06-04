@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hls.duration;
+using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.playlist;
@@ -71,7 +72,7 @@ namespace Hls
             {
                 throw new InvalidOperationException();
             }
-            var walker = new PlaylistWalker(new ExtVersionParser(), new ExtTargetDurationParser(), new DurationParser());
+            var walker = new PlaylistWalker(new ExtVersionParser(), new ExtTargetDurationParser(), new DurationParser(), new ExtMediaSequenceParser());
             result.Element.Walk(walker);
             return walker.Result;
         }

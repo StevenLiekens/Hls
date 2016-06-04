@@ -1,6 +1,7 @@
 ﻿using System;
 using Hls.duration;
 using Hls.EXTINF;
+using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.title;
@@ -17,16 +18,22 @@ namespace Hls.playlist
 
         private readonly IParser<ExtVersion, int> versionParser;
 
+        private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
+
+        private int sequence = 0;
+
         private MediaSegment currentSegment;
 
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
             IParser<ExtTargetDuration, TimeSpan> targetDurationParser,
-            IParser<Duration, TimeSpan> durationParser)
+            IParser<Duration, TimeSpan> durationParser,
+            IParser<ExtMediaSequence, int> mediaSequenceParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
             this.durationParser = durationParser;
+            this.mediaSequenceParser = mediaSequenceParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -76,10 +83,24 @@ namespace Hls.playlist
             return false;
         }
 
+        public void Enter(ExtMediaSequence mediaSequence)
+        {
+            if (currentSegment != null)
+            {
+                throw new InvalidOperationException("The EXT-X-MEDIA-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
+            }
+        }
+
+        public bool Walk(ExtMediaSequence mediaSequence)
+        {
+            sequence = mediaSequenceParser.Parse(mediaSequence);
+            return false;
+        }
+
         public void Exit(UniformResourceIdentifier uri)
         {
+            currentSegment.Sequence = sequence++;
             Result.Segments.Add(currentSegment);
-            currentSegment = null;
         }
     }
 }
