@@ -21,7 +21,7 @@ http://media.example.com/third.ts
             var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
             Assert.Equal(TimeSpan.FromSeconds(10), result.TargetDuration);
-            Assert.Collection(result.Segments,
+            Assert.Collection(result.MediaSegments,
                 first =>
                 {
                     Assert.Equal(new TimeSpan(0, 0, 0, 9, 9), first.Duration);

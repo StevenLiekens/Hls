@@ -7,7 +7,7 @@ namespace Hls
     {
         private bool complete;
 
-        public IList<MediaSegment> Segments { get; } = new List<MediaSegment>();
+        public IList<MediaSegment> MediaSegments { get; } = new List<MediaSegment>();
 
         public TimeSpan? TargetDuration { get; set; }
 

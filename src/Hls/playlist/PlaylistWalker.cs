@@ -100,7 +100,7 @@ namespace Hls.playlist
         public void Exit(UniformResourceIdentifier uri)
         {
             currentSegment.Sequence = sequence++;
-            Result.Segments.Add(currentSegment);
+            Result.MediaSegments.Add(currentSegment);
         }
     }
 }
