@@ -59,7 +59,30 @@ https://priv.example.com/fileSequence2682.ts
 ";
             var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
-            Assert.NotNull(result);
+            Assert.Equal(TimeSpan.FromSeconds(8), result.TargetDuration);
+            Assert.Collection(
+                result.MediaSegments,
+                fileSequence2680 =>
+                {
+                    Assert.Equal(new TimeSpan(0, 0, 0, 7, 975), fileSequence2680.Duration);
+                    Assert.Null(fileSequence2680.Title);
+                    Assert.Equal("https://priv.example.com/fileSequence2680.ts", fileSequence2680.Location.ToString());
+                    Assert.Equal(2680, fileSequence2680.Sequence);
+                },
+                fileSequence2681 =>
+                {
+                    Assert.Equal(new TimeSpan(0, 0, 0, 7, 941), fileSequence2681.Duration);
+                    Assert.Null(fileSequence2681.Title);
+                    Assert.Equal("https://priv.example.com/fileSequence2681.ts", fileSequence2681.Location.ToString());
+                    Assert.Equal(2681, fileSequence2681.Sequence);
+                },
+                fileSequence2682 =>
+                {
+                    Assert.Equal(new TimeSpan(0, 0, 0, 7, 975), fileSequence2682.Duration);
+                    Assert.Null(fileSequence2682.Title);
+                    Assert.Equal("https://priv.example.com/fileSequence2682.ts", fileSequence2682.Location.ToString());
+                    Assert.Equal(2682, fileSequence2682.Sequence);
+                });
         }
 
         [Fact]
