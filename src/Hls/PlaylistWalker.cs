@@ -1,6 +1,8 @@
 ﻿using System;
 using Hls.EOL;
 using Hls.EXTINF;
+using Hls.EXT_X_DISCONTINUITY;
+using Hls.EXT_X_DISCONTINUITY_SEQUENCE;
 using Hls.EXT_X_ENDLIST;
 using Hls.EXT_X_I_FRAME_STREAM_INF;
 using Hls.EXT_X_KEY;
@@ -10,7 +12,6 @@ using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.playlist;
 using Txt.Core;
-using Uri.URI;
 using Uri.URI_reference;
 
 namespace Hls
@@ -31,11 +32,15 @@ namespace Hls
 
         private readonly IParser<ExtVersion, int> versionParser;
 
+        private readonly IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser;
+
         private Key key;
 
         private MediaSegment mediaSegment;
 
         private int sequence;
+
+        private int discontinuitySequence;
 
         private VariantStream variantStream;
 
@@ -46,7 +51,8 @@ namespace Hls
             IParser<ExtKey, Key> keyParser,
             IParser<ExtStreamInf, StreamInfo> streamInfParser,
             IParser<ExtInf, Tuple<TimeSpan, string>> infoParser,
-            IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser)
+            IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser,
+            IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
@@ -55,6 +61,7 @@ namespace Hls
             this.streamInfParser = streamInfParser;
             this.infoParser = infoParser;
             this.iframeStreamInfParser = iframeStreamInfParser;
+            this.discontinuitySequenceParser = discontinuitySequenceParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -74,7 +81,38 @@ namespace Hls
             {
                 throw new InvalidOperationException("EXTINF is not valid in a Master Playlist");
             }
-            mediaSegment = new MediaSegment();
+        }
+
+        public void Enter(ExtDiscontinuitySequence discontinuitySequence)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Media;
+            }
+            else if (Result.PlaylistType == PlaylistType.Master)
+            {
+                throw new InvalidOperationException("EXT-X-DISCONTINUITY-SEQUENCE is not valid in a Master Playlist");
+            }
+            if (mediaSegment != null)
+            {
+                throw new InvalidOperationException("The EXT-X-DISCONTINUITY-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
+            }
+            if (this.discontinuitySequence != 0)
+            {
+                throw new InvalidOperationException("The EXT-X-DISCONTINUITY-SEQUENCE tag MUST appear before any EXT-X-DISCONTINUITY tag.");
+            }
+        }
+
+        public void Enter(ExtDiscontinuity discontinuity)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Media;
+            }
+            else if (Result.PlaylistType == PlaylistType.Master)
+            {
+                throw new InvalidOperationException("EXT-X-DISCONTINUITY is not valid in a Master Playlist");
+            }
         }
 
         public void Enter(ExtStreamInf streamInf)
@@ -156,6 +194,7 @@ namespace Hls
                     break;
                 case PlaylistType.Media:
                     mediaSegment.Sequence = sequence++;
+                    mediaSegment.DiscontinuitySequence = discontinuitySequence;
                     mediaSegment.Key = key;
                     Result.MediaSegments.Add(mediaSegment);
                     break;
@@ -179,6 +218,18 @@ namespace Hls
         public bool Walk(ExtTargetDuration targetDuration)
         {
             Result.TargetDuration = targetDurationParser.Parse(targetDuration);
+            return false;
+        }
+
+        public bool Walk(ExtDiscontinuitySequence discontinuitySequence)
+        {
+            this.discontinuitySequence = discontinuitySequenceParser.Parse(discontinuitySequence);
+            return false;
+        }
+
+        public bool Walk(ExtDiscontinuity discontinuity)
+        {
+            discontinuitySequence++;
             return false;
         }
 

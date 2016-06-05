@@ -30,14 +30,14 @@ title                         = 1*(VCHAR / WSP)
                               ; TODO: support UTF-8 titles
 duration                      = decimal-floating-point / decimal-integer
 EXT-X-BYTERANGE               = <TODO>
-EXT-X-DISCONTINUITY           = <TODO>
+EXT-X-DISCONTINUITY           = "#EXT-X-DISCONTINUITY"
 EXT-X-KEY                     = "#EXT-X-KEY:" attribute-list
 EXT-X-MAP                     = <TODO>
 EXT-X-PROGRAM-DATE-TIME       = <TODO>
 EXT-X-DATERANGE               = <TODO>
 EXT-X-TARGETDURATION          = "#EXT-X-TARGETDURATION:" decimal-integer
 EXT-X-MEDIA-SEQUENCE          = "#EXT-X-MEDIA-SEQUENCE:" decimal-integer
-EXT-X-DISCONTINUITY-SEQUENCE  = <TODO>
+EXT-X-DISCONTINUITY-SEQUENCE  = "#EXT-X-DISCONTINUITY-SEQUENCE:" decimal-integer
 EXT-X-ENDLIST                 = "#EXT-X-ENDLIST"
 EXT-X-PLAYLIST-TYPE           = <TODO>
 EXT-X-I-FRAMES-ONLY           = <TODO>
