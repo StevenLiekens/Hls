@@ -216,7 +216,7 @@ namespace Hls.EXT_X_MEDIA
             }
             if (values.TryGetValue(@"CHARACTERISTICS", out tmp))
             {
-                rendition.Characteristics = ((string)tmp).Split(',').ToList();
+                rendition.Characteristics = ((string)tmp).Split(',').Select(s => s.Trim()).ToList();
             }
             return rendition;
         }

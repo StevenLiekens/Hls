@@ -44,7 +44,7 @@ namespace Hls.EXT_X_I_FRAME_STREAM_INF
                 var codecs = (string)tmp;
                 foreach (var codec in codecs.Split(','))
                 {
-                    result.Codecs.Add(codec);
+                    result.Codecs.Add(codec.Trim());
                 }
             }
             if (values.TryGetValue(@"RESOLUTION", out tmp))

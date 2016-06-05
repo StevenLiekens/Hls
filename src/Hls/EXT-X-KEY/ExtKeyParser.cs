@@ -70,8 +70,7 @@ namespace Hls.EXT_X_KEY
             // This attribute is OPTIONAL; if it is not present, its value is considered to be "1".
             if (values.TryGetValue(@"KEYFORMATVERSIONS", out tmp))
             {
-                var csv = (string)tmp;
-                var versions = csv.Split('/');
+                var versions = ((string)tmp).Split('/');
                 foreach (var version in versions)
                 {
                     int v;
