@@ -59,26 +59,27 @@ https://priv.example.com/fileSequence2682.ts
 ";
             var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
+            Assert.Equal(3, result.Version);
             Assert.Equal(TimeSpan.FromSeconds(8), result.TargetDuration);
             Assert.Collection(
                 result.MediaSegments,
                 fileSequence2680 =>
                 {
-                    Assert.Equal(new TimeSpan(0, 0, 0, 7, 975), fileSequence2680.Duration);
+                    Assert.Equal(TimeSpan.FromSeconds(7.975), fileSequence2680.Duration);
                     Assert.Null(fileSequence2680.Title);
                     Assert.Equal("https://priv.example.com/fileSequence2680.ts", fileSequence2680.Location.ToString());
                     Assert.Equal(2680, fileSequence2680.Sequence);
                 },
                 fileSequence2681 =>
                 {
-                    Assert.Equal(new TimeSpan(0, 0, 0, 7, 941), fileSequence2681.Duration);
+                    Assert.Equal(TimeSpan.FromSeconds(7.941), fileSequence2681.Duration);
                     Assert.Null(fileSequence2681.Title);
                     Assert.Equal("https://priv.example.com/fileSequence2681.ts", fileSequence2681.Location.ToString());
                     Assert.Equal(2681, fileSequence2681.Sequence);
                 },
                 fileSequence2682 =>
                 {
-                    Assert.Equal(new TimeSpan(0, 0, 0, 7, 975), fileSequence2682.Duration);
+                    Assert.Equal(TimeSpan.FromSeconds(7.975), fileSequence2682.Duration);
                     Assert.Null(fileSequence2682.Title);
                     Assert.Equal("https://priv.example.com/fileSequence2682.ts", fileSequence2682.Location.ToString());
                     Assert.Equal(2682, fileSequence2682.Sequence);
@@ -109,7 +110,66 @@ http://media.example.com/fileSequence53-A.ts
 ";
             var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
-            Assert.NotNull(result);
+            Assert.Equal(3, result.Version);
+            Assert.Equal(TimeSpan.FromSeconds(15), result.TargetDuration);
+            Assert.Collection(
+                result.MediaSegments,
+                fileSequence52_A =>
+                {
+                    Assert.Equal(7794, fileSequence52_A.Sequence);
+                    Assert.Null(fileSequence52_A.Title);
+                    Assert.Equal(TimeSpan.FromSeconds(2.833), fileSequence52_A.Duration);
+                    Assert.Equal("http://media.example.com/fileSequence52-A.ts", fileSequence52_A.Location.ToString());
+                    Assert.Equal(EncryptionMethod.AES128, fileSequence52_A.Key.Method);
+                    Assert.Equal("https://priv.example.com/key.php?r=52", fileSequence52_A.Key.Uri.ToString());
+                    Assert.Null(fileSequence52_A.Key.IV);
+                    Assert.Equal("identity", fileSequence52_A.Key.KeyFormat);
+                    Assert.Collection(
+                        fileSequence52_A.Key.KeyFormatVersions,
+                        version => Assert.Equal(1, version));
+                },
+                fileSequence52_B =>
+                {
+                    Assert.Equal(7795, fileSequence52_B.Sequence);
+                    Assert.Null(fileSequence52_B.Title);
+                    Assert.Equal(TimeSpan.FromSeconds(15.0), fileSequence52_B.Duration);
+                    Assert.Equal("http://media.example.com/fileSequence52-B.ts", fileSequence52_B.Location.ToString());
+                    Assert.Equal(EncryptionMethod.AES128, fileSequence52_B.Key.Method);
+                    Assert.Equal("https://priv.example.com/key.php?r=52", fileSequence52_B.Key.Uri.ToString());
+                    Assert.Null(fileSequence52_B.Key.IV);
+                    Assert.Equal("identity", fileSequence52_B.Key.KeyFormat);
+                    Assert.Collection(
+                        fileSequence52_B.Key.KeyFormatVersions,
+                        version => Assert.Equal(1, version));
+                },
+                fileSequence52_C =>
+                {
+                    Assert.Equal(7796, fileSequence52_C.Sequence);
+                    Assert.Null(fileSequence52_C.Title);
+                    Assert.Equal(TimeSpan.FromSeconds(13.333), fileSequence52_C.Duration);
+                    Assert.Equal("http://media.example.com/fileSequence52-C.ts", fileSequence52_C.Location.ToString());
+                    Assert.Equal(EncryptionMethod.AES128, fileSequence52_C.Key.Method);
+                    Assert.Equal("https://priv.example.com/key.php?r=52", fileSequence52_C.Key.Uri.ToString());
+                    Assert.Null(fileSequence52_C.Key.IV);
+                    Assert.Equal("identity", fileSequence52_C.Key.KeyFormat);
+                    Assert.Collection(
+                        fileSequence52_C.Key.KeyFormatVersions,
+                        version => Assert.Equal(1, version));
+                },
+                fileSequence53_A =>
+                {
+                    Assert.Equal(7797, fileSequence53_A.Sequence);
+                    Assert.Null(fileSequence53_A.Title);
+                    Assert.Equal(TimeSpan.FromSeconds(15.0), fileSequence53_A.Duration);
+                    Assert.Equal("http://media.example.com/fileSequence53-A.ts", fileSequence53_A.Location.ToString());
+                    Assert.Equal(EncryptionMethod.AES128, fileSequence53_A.Key.Method);
+                    Assert.Equal("https://priv.example.com/key.php?r=53", fileSequence53_A.Key.Uri.ToString());
+                    Assert.Null(fileSequence53_A.Key.IV);
+                    Assert.Equal("identity", fileSequence53_A.Key.KeyFormat);
+                    Assert.Collection(
+                        fileSequence53_A.Key.KeyFormatVersions,
+                        version => Assert.Equal(1, version));
+                });
         }
 
         [Fact]
@@ -127,7 +187,59 @@ http://example.com/audio-only.m3u8
 ";
             var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
-            Assert.NotNull(result);
+            Assert.Collection(
+                result.VariantStreams,
+                low =>
+                {
+                    Assert.Equal(1280000, low.StreamInfo.Bandwidth);
+                    Assert.Equal(1000000, low.StreamInfo.AverageBandwidth);
+                    Assert.Empty(low.StreamInfo.Codecs);
+                    Assert.Null(low.StreamInfo.Resolution);
+                    Assert.Null(low.StreamInfo.Framerate);
+                    Assert.Null(low.StreamInfo.Audio);
+                    Assert.Null(low.StreamInfo.Video);
+                    Assert.Null(low.StreamInfo.Subtitles);
+                    Assert.Null(low.StreamInfo.ClosedCaptions);
+                },
+                mid =>
+                {
+                    Assert.Equal(2560000, mid.StreamInfo.Bandwidth);
+                    Assert.Equal(2000000, mid.StreamInfo.AverageBandwidth);
+                    Assert.Empty(mid.StreamInfo.Codecs);
+                    Assert.Null(mid.StreamInfo.Resolution);
+                    Assert.Null(mid.StreamInfo.Framerate);
+                    Assert.Null(mid.StreamInfo.Audio);
+                    Assert.Null(mid.StreamInfo.Video);
+                    Assert.Null(mid.StreamInfo.Subtitles);
+                    Assert.Null(mid.StreamInfo.ClosedCaptions);
+
+                },
+                hi =>
+                {
+                    Assert.Equal(7680000, hi.StreamInfo.Bandwidth);
+                    Assert.Equal(6000000, hi.StreamInfo.AverageBandwidth);
+                    Assert.Empty(hi.StreamInfo.Codecs);
+                    Assert.Null(hi.StreamInfo.Resolution);
+                    Assert.Null(hi.StreamInfo.Framerate);
+                    Assert.Null(hi.StreamInfo.Audio);
+                    Assert.Null(hi.StreamInfo.Video);
+                    Assert.Null(hi.StreamInfo.Subtitles);
+                    Assert.Null(hi.StreamInfo.ClosedCaptions);
+                },
+                audio_only =>
+                {
+                    Assert.Equal(65000, audio_only.StreamInfo.Bandwidth);
+                    Assert.Null(audio_only.StreamInfo.AverageBandwidth);
+                    Assert.Collection(
+                        audio_only.StreamInfo.Codecs,
+                        codec => Assert.Equal("mp4a.40.5", codec));
+                    Assert.Null(audio_only.StreamInfo.Resolution);
+                    Assert.Null(audio_only.StreamInfo.Framerate);
+                    Assert.Null(audio_only.StreamInfo.Audio);
+                    Assert.Null(audio_only.StreamInfo.Video);
+                    Assert.Null(audio_only.StreamInfo.Subtitles);
+                    Assert.Null(audio_only.StreamInfo.ClosedCaptions);
+                });
         }
 
         [Fact]
