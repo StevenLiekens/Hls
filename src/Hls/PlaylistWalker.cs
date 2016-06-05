@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Hls.EOL;
 using Hls.EXTINF;
 using Hls.EXT_X_DISCONTINUITY;
@@ -6,6 +8,7 @@ using Hls.EXT_X_DISCONTINUITY_SEQUENCE;
 using Hls.EXT_X_ENDLIST;
 using Hls.EXT_X_I_FRAME_STREAM_INF;
 using Hls.EXT_X_KEY;
+using Hls.EXT_X_MEDIA;
 using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_STREAM_INF;
 using Hls.EXT_X_TARGETDURATION;
@@ -18,11 +21,15 @@ namespace Hls
 {
     public class PlaylistWalker : Walker
     {
+        private readonly IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser;
+
         private readonly IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser;
 
         private readonly IParser<ExtInf, Tuple<TimeSpan, string>> infoParser;
 
         private readonly IParser<ExtKey, Key> keyParser;
+
+        private readonly IParser<ExtMedia, Rendition> mediaParser;
 
         private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
 
@@ -32,7 +39,7 @@ namespace Hls
 
         private readonly IParser<ExtVersion, int> versionParser;
 
-        private readonly IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser;
+        private int discontinuitySequence;
 
         private Key key;
 
@@ -40,9 +47,16 @@ namespace Hls
 
         private int sequence;
 
-        private int discontinuitySequence;
-
         private VariantStream variantStream;
+
+        private List<VariantStream> variantStreams { get; set; } = new List<VariantStream>();
+
+        private List<MediaSegment> mediaSegments { get; set; } = new List<MediaSegment>();
+
+        private List<IntraFrameStreamInfo> intraFrameStreamsInfo { get; set; } = new List<IntraFrameStreamInfo>();
+
+        private List<Rendition> renditions { get; set; } = new List<Rendition>();
+
 
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
@@ -52,7 +66,8 @@ namespace Hls
             IParser<ExtStreamInf, StreamInfo> streamInfParser,
             IParser<ExtInf, Tuple<TimeSpan, string>> infoParser,
             IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser,
-            IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser)
+            IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser,
+            IParser<ExtMedia, Rendition> mediaParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
@@ -62,6 +77,7 @@ namespace Hls
             this.infoParser = infoParser;
             this.iframeStreamInfParser = iframeStreamInfParser;
             this.discontinuitySequenceParser = discontinuitySequenceParser;
+            this.mediaParser = mediaParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -95,11 +111,13 @@ namespace Hls
             }
             if (mediaSegment != null)
             {
-                throw new InvalidOperationException("The EXT-X-DISCONTINUITY-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
+                throw new InvalidOperationException(
+                    "The EXT-X-DISCONTINUITY-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
             }
             if (this.discontinuitySequence != 0)
             {
-                throw new InvalidOperationException("The EXT-X-DISCONTINUITY-SEQUENCE tag MUST appear before any EXT-X-DISCONTINUITY tag.");
+                throw new InvalidOperationException(
+                    "The EXT-X-DISCONTINUITY-SEQUENCE tag MUST appear before any EXT-X-DISCONTINUITY tag.");
             }
         }
 
@@ -124,6 +142,18 @@ namespace Hls
             else if (Result.PlaylistType == PlaylistType.Media)
             {
                 throw new InvalidOperationException("EXT-X-STREAM-INF is not valid in a Media Playlist");
+            }
+        }
+
+        public void Enter(ExtMedia media)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Master;
+            }
+            else if (Result.PlaylistType == PlaylistType.Media)
+            {
+                throw new InvalidOperationException("EXT-X-MEDIA is not valid in a Media Playlist");
             }
         }
 
@@ -182,7 +212,9 @@ namespace Hls
 
         public void Exit(Playlist playlist)
         {
-            Result.Complete();
+            Result.MediaSegments = mediaSegments;
+            Result.VariantStreams = variantStreams;
+            Result.IntraFrameStreamsInfo = intraFrameStreamsInfo;
         }
 
         public void Exit(UriReference uri)
@@ -190,16 +222,32 @@ namespace Hls
             switch (Result.PlaylistType)
             {
                 case PlaylistType.Master:
-                    Result.VariantStreams.Add(variantStream);
+                    variantStreams.Add(variantStream);
+                    if (variantStream.StreamInfo.Audio != null)
+                    {
+                        variantStream.StreamInfo.AlternativeAudio = renditions.FindAll(x => (x.Type == MediaType.Audio) && (x.GroupId == variantStream.StreamInfo.Audio));
+                    }
+                    if (variantStream.StreamInfo.Video != null)
+                    {
+                        variantStream.StreamInfo.AlternativeVideo = renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.StreamInfo.Video));
+                    }
+                    if (variantStream.StreamInfo.Subtitles != null)
+                    {
+                        variantStream.StreamInfo.AlternativeSubtitles = renditions.FindAll(x => (x.Type == MediaType.Subtitles) && (x.GroupId == variantStream.StreamInfo.Subtitles));
+                    }
+                    if (variantStream.StreamInfo.ClosedCaptions != null)
+                    {
+                        variantStream.StreamInfo.AlternativeClosedCaptions = renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.StreamInfo.ClosedCaptions));
+                    }
                     break;
                 case PlaylistType.Media:
                     mediaSegment.Sequence = sequence++;
                     mediaSegment.DiscontinuitySequence = discontinuitySequence;
                     mediaSegment.Key = key;
-                    Result.MediaSegments.Add(mediaSegment);
+                    mediaSegments.Add(mediaSegment);
                     break;
                 case PlaylistType.Unknown:
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException("A URI-line MUST NOT appear before the first playlist tag.");
             }
         }
 
@@ -211,7 +259,12 @@ namespace Hls
 
         public bool Walk(ExtIFrameStreamInf iFrameStreamInf)
         {
-            Result.IntraFrameStreamsInfo.Add(iframeStreamInfParser.Parse(iFrameStreamInf));
+            var streamInfo = iframeStreamInfParser.Parse(iFrameStreamInf);
+            if (streamInfo.Video != null)
+            {
+                streamInfo.AlternativeVideo = renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == streamInfo.Video));
+            }
+            intraFrameStreamsInfo.Add(streamInfo);
             return false;
         }
 
@@ -233,15 +286,21 @@ namespace Hls
             return false;
         }
 
+        public bool Walk(ExtMedia media)
+        {
+            renditions.Add(mediaParser.Parse(media));
+            return false;
+        }
+
         public bool Walk(UriReference uri)
         {
             switch (Result.PlaylistType)
             {
                 case PlaylistType.Master:
-                    variantStream.Location = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
+                    variantStream.Uri = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
                     break;
                 case PlaylistType.Media:
-                    mediaSegment.Location = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
+                    mediaSegment.Uri = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

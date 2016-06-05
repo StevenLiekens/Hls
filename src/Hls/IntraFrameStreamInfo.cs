@@ -5,6 +5,8 @@ namespace Hls
 {
     public class IntraFrameStreamInfo
     {
+        public IList<Rendition> AlternativeVideo { get; set; } = new List<Rendition>();
+
         public int? AverageBandwidth { get; set; }
 
         public int Bandwidth { get; set; }

@@ -22,5 +22,13 @@ namespace Hls
         public string Video { get; set; }
 
         public string ClosedCaptions { get; set; }
+
+        public IList<Rendition> AlternativeAudio { get; set; } = new List<Rendition>();
+
+        public IList<Rendition> AlternativeVideo { get; set; } = new List<Rendition>();
+
+        public IList<Rendition> AlternativeSubtitles { get; set; } = new List<Rendition>();
+
+        public IList<Rendition> AlternativeClosedCaptions { get; set; } = new List<Rendition>();
     }
 }

@@ -26,19 +26,19 @@ http://media.example.com/third.ts
                 {
                     Assert.Equal(new TimeSpan(0, 0, 0, 9, 9), first.Duration);
                     Assert.Null(first.Title);
-                    Assert.Equal("http://media.example.com/first.ts", first.Location.ToString());
+                    Assert.Equal("http://media.example.com/first.ts", first.Uri.ToString());
                 },
                 second =>
                 {
                     Assert.Equal(new TimeSpan(0, 0, 0, 9, 9), second.Duration);
                     Assert.Null(second.Title);
-                    Assert.Equal("http://media.example.com/second.ts", second.Location.ToString());
+                    Assert.Equal("http://media.example.com/second.ts", second.Uri.ToString());
                 },
                 third =>
                 {
                     Assert.Equal(new TimeSpan(0, 0, 0, 3, 3), third.Duration);
                     Assert.Null(third.Title);
-                    Assert.Equal("http://media.example.com/third.ts", third.Location.ToString());
+                    Assert.Equal("http://media.example.com/third.ts", third.Uri.ToString());
                 });
         }
 
@@ -67,21 +67,21 @@ https://priv.example.com/fileSequence2682.ts
                 {
                     Assert.Equal(TimeSpan.FromSeconds(7.975), fileSequence2680.Duration);
                     Assert.Null(fileSequence2680.Title);
-                    Assert.Equal("https://priv.example.com/fileSequence2680.ts", fileSequence2680.Location.ToString());
+                    Assert.Equal("https://priv.example.com/fileSequence2680.ts", fileSequence2680.Uri.ToString());
                     Assert.Equal(2680, fileSequence2680.Sequence);
                 },
                 fileSequence2681 =>
                 {
                     Assert.Equal(TimeSpan.FromSeconds(7.941), fileSequence2681.Duration);
                     Assert.Null(fileSequence2681.Title);
-                    Assert.Equal("https://priv.example.com/fileSequence2681.ts", fileSequence2681.Location.ToString());
+                    Assert.Equal("https://priv.example.com/fileSequence2681.ts", fileSequence2681.Uri.ToString());
                     Assert.Equal(2681, fileSequence2681.Sequence);
                 },
                 fileSequence2682 =>
                 {
                     Assert.Equal(TimeSpan.FromSeconds(7.975), fileSequence2682.Duration);
                     Assert.Null(fileSequence2682.Title);
-                    Assert.Equal("https://priv.example.com/fileSequence2682.ts", fileSequence2682.Location.ToString());
+                    Assert.Equal("https://priv.example.com/fileSequence2682.ts", fileSequence2682.Uri.ToString());
                     Assert.Equal(2682, fileSequence2682.Sequence);
                 });
         }
@@ -119,7 +119,7 @@ http://media.example.com/fileSequence53-A.ts
                     Assert.Equal(7794, fileSequence52_A.Sequence);
                     Assert.Null(fileSequence52_A.Title);
                     Assert.Equal(TimeSpan.FromSeconds(2.833), fileSequence52_A.Duration);
-                    Assert.Equal("http://media.example.com/fileSequence52-A.ts", fileSequence52_A.Location.ToString());
+                    Assert.Equal("http://media.example.com/fileSequence52-A.ts", fileSequence52_A.Uri.ToString());
                     Assert.Equal(EncryptionMethod.AES128, fileSequence52_A.Key.Method);
                     Assert.Equal("https://priv.example.com/key.php?r=52", fileSequence52_A.Key.Uri.ToString());
                     Assert.Null(fileSequence52_A.Key.IV);
@@ -133,7 +133,7 @@ http://media.example.com/fileSequence53-A.ts
                     Assert.Equal(7795, fileSequence52_B.Sequence);
                     Assert.Null(fileSequence52_B.Title);
                     Assert.Equal(TimeSpan.FromSeconds(15.0), fileSequence52_B.Duration);
-                    Assert.Equal("http://media.example.com/fileSequence52-B.ts", fileSequence52_B.Location.ToString());
+                    Assert.Equal("http://media.example.com/fileSequence52-B.ts", fileSequence52_B.Uri.ToString());
                     Assert.Equal(EncryptionMethod.AES128, fileSequence52_B.Key.Method);
                     Assert.Equal("https://priv.example.com/key.php?r=52", fileSequence52_B.Key.Uri.ToString());
                     Assert.Null(fileSequence52_B.Key.IV);
@@ -147,7 +147,7 @@ http://media.example.com/fileSequence53-A.ts
                     Assert.Equal(7796, fileSequence52_C.Sequence);
                     Assert.Null(fileSequence52_C.Title);
                     Assert.Equal(TimeSpan.FromSeconds(13.333), fileSequence52_C.Duration);
-                    Assert.Equal("http://media.example.com/fileSequence52-C.ts", fileSequence52_C.Location.ToString());
+                    Assert.Equal("http://media.example.com/fileSequence52-C.ts", fileSequence52_C.Uri.ToString());
                     Assert.Equal(EncryptionMethod.AES128, fileSequence52_C.Key.Method);
                     Assert.Equal("https://priv.example.com/key.php?r=52", fileSequence52_C.Key.Uri.ToString());
                     Assert.Null(fileSequence52_C.Key.IV);
@@ -161,7 +161,7 @@ http://media.example.com/fileSequence53-A.ts
                     Assert.Equal(7797, fileSequence53_A.Sequence);
                     Assert.Null(fileSequence53_A.Title);
                     Assert.Equal(TimeSpan.FromSeconds(15.0), fileSequence53_A.Duration);
-                    Assert.Equal("http://media.example.com/fileSequence53-A.ts", fileSequence53_A.Location.ToString());
+                    Assert.Equal("http://media.example.com/fileSequence53-A.ts", fileSequence53_A.Uri.ToString());
                     Assert.Equal(EncryptionMethod.AES128, fileSequence53_A.Key.Method);
                     Assert.Equal("https://priv.example.com/key.php?r=53", fileSequence53_A.Key.Uri.ToString());
                     Assert.Null(fileSequence53_A.Key.IV);

@@ -10,7 +10,7 @@ namespace Hls
 
         public Key Key { get; set; }
 
-        public System.Uri Location { get; set; }
+        public System.Uri Uri { get; set; }
 
         public int Sequence { get; set; }
 

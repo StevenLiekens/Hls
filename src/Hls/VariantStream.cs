@@ -2,8 +2,8 @@
 {
     public class VariantStream
     {
-        public System.Uri Location { get; set; }
-
         public StreamInfo StreamInfo { get; set; }
+
+        public System.Uri Uri { get; set; }
     }
 }

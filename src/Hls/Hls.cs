@@ -11,6 +11,7 @@ using Hls.EXTINF;
 using Hls.EXT_X_DISCONTINUITY_SEQUENCE;
 using Hls.EXT_X_I_FRAME_STREAM_INF;
 using Hls.EXT_X_KEY;
+using Hls.EXT_X_MEDIA;
 using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_STREAM_INF;
 using Hls.EXT_X_TARGETDURATION;
@@ -20,8 +21,8 @@ using Hls.playlist;
 using Hls.quoted_string;
 using Hls.signed_decimal_floating_point;
 using SimpleInjector;
-using Txt.Core;
 using Txt.ABNF;
+using Txt.Core;
 using Uri;
 using Registration = Txt.Core.Registration;
 
@@ -96,7 +97,13 @@ namespace Hls
             var decimalFloatingPointParser = new DecimalFloatingPointParser();
             var signedDecimalFloatingPointParser = new SignedDecimalFloatingPointParser(decimalFloatingPointParser);
             var quotedStringParser = new QuotedStringParser();
-            var attributeValueParser = new AttributeValueParser(hexadecimalSequenceParser, decimalResolutionParser, decimalFloatingPointParser, signedDecimalFloatingPointParser, decimalIntegerParser, quotedStringParser);
+            var attributeValueParser = new AttributeValueParser(
+                hexadecimalSequenceParser,
+                decimalResolutionParser,
+                decimalFloatingPointParser,
+                signedDecimalFloatingPointParser,
+                decimalIntegerParser,
+                quotedStringParser);
             var attributeParser = new AttributeParser(attributeValueParser);
             var attributeListParser = new AttributeListParser(attributeParser);
             var extKeyParser = new ExtKeyParser(attributeListParser);
@@ -104,7 +111,17 @@ namespace Hls
             var extInfParser = new ExtInfParser(durationParser);
             var extIFrameStreamInfParser = new ExtIFrameStreamInfParser(attributeListParser);
             var extDiscontinuitySequenceParser = new ExtDiscontinuitySequenceParser(decimalIntegerParser);
-            var walker = new PlaylistWalker(extVersionParser, extTargetDurationParser, extMediaSequenceParser, extKeyParser, extStreamInfParser, extInfParser, extIFrameStreamInfParser, extDiscontinuitySequenceParser);
+            var extMediaParser = new ExtMediaParser(attributeListParser);
+            var walker = new PlaylistWalker(
+                extVersionParser,
+                extTargetDurationParser,
+                extMediaSequenceParser,
+                extKeyParser,
+                extStreamInfParser,
+                extInfParser,
+                extIFrameStreamInfParser,
+                extDiscontinuitySequenceParser,
+                extMediaParser);
             result.Element.Walk(walker);
             return walker.Result;
         }
