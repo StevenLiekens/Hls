@@ -1,12 +1,13 @@
 ﻿using System;
+using Hls.EOL;
 using Hls.EXTINF;
+using Hls.EXT_X_ENDLIST;
 using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_STREAM_INF;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.playlist;
-using Hls.title;
 using Txt.Core;
 using Uri.URI;
 
@@ -14,6 +15,8 @@ namespace Hls
 {
     public class PlaylistWalker : Walker
     {
+        private readonly IParser<ExtInf, Tuple<TimeSpan, string>> infoParser;
+
         private readonly IParser<ExtKey, Key> keyParser;
 
         private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
@@ -23,8 +26,6 @@ namespace Hls
         private readonly IParser<ExtTargetDuration, TimeSpan> targetDurationParser;
 
         private readonly IParser<ExtVersion, int> versionParser;
-
-        private readonly IParser<ExtInf, Tuple<TimeSpan, string>> infoParser;
 
         private Key key;
 
@@ -82,8 +83,40 @@ namespace Hls
             }
         }
 
+        public void Enter(ExtTargetDuration targetDuration)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Media;
+            }
+            else if (Result.PlaylistType == PlaylistType.Master)
+            {
+                throw new InvalidOperationException("EXT-X-TARGETDURATION cannot appear in a Master Playlist.");
+            }
+        }
+
+        public void Enter(ExtEndList endList)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Media;
+            }
+            else if (Result.PlaylistType == PlaylistType.Master)
+            {
+                throw new InvalidOperationException("EXT-X-ENDLIST cannot appear in a Master Playlist.");
+            }
+        }
+
         public void Enter(ExtMediaSequence mediaSequence)
         {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Media;
+            }
+            else if (Result.PlaylistType == PlaylistType.Master)
+            {
+                throw new InvalidOperationException("EXT-X-MEDIA-SEQUENCE cannot appear in a Master Playlist.");
+            }
             if (mediaSegment != null)
             {
                 throw new InvalidOperationException(
@@ -141,9 +174,19 @@ namespace Hls
             return false;
         }
 
+        public bool Walk(EndOfLine eol)
+        {
+            return false;
+        }
+
         public bool Walk(ExtMediaSequence mediaSequence)
         {
             sequence = mediaSequenceParser.Parse(mediaSequence);
+            return false;
+        }
+
+        public bool Walk(ExtEndList mediaSequence)
+        {
             return false;
         }
 
