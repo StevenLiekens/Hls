@@ -260,7 +260,91 @@ audio-only.m3u8
 ";
             var parser = Hls.CreateDefault();
             var result = parser.Parse(data);
-            Assert.NotNull(result);
+            Assert.Collection(
+                result.VariantStreams,
+                low =>
+                {
+                    Assert.Equal(1280000, low.StreamInfo.Bandwidth);
+                    Assert.Null(low.StreamInfo.AverageBandwidth);
+                    Assert.Empty(low.StreamInfo.Codecs);
+                    Assert.Null(low.StreamInfo.Resolution);
+                    Assert.Null(low.StreamInfo.Framerate);
+                    Assert.Null(low.StreamInfo.Audio);
+                    Assert.Null(low.StreamInfo.Video);
+                    Assert.Null(low.StreamInfo.Subtitles);
+                    Assert.Null(low.StreamInfo.ClosedCaptions);
+                },
+                mid =>
+                {
+                    Assert.Equal(2560000, mid.StreamInfo.Bandwidth);
+                    Assert.Null(mid.StreamInfo.AverageBandwidth);
+                    Assert.Empty(mid.StreamInfo.Codecs);
+                    Assert.Null(mid.StreamInfo.Resolution);
+                    Assert.Null(mid.StreamInfo.Framerate);
+                    Assert.Null(mid.StreamInfo.Audio);
+                    Assert.Null(mid.StreamInfo.Video);
+                    Assert.Null(mid.StreamInfo.Subtitles);
+                    Assert.Null(mid.StreamInfo.ClosedCaptions);
+                },
+                hi =>
+                {
+                    Assert.Equal(7680000, hi.StreamInfo.Bandwidth);
+                    Assert.Null(hi.StreamInfo.AverageBandwidth);
+                    Assert.Empty(hi.StreamInfo.Codecs);
+                    Assert.Null(hi.StreamInfo.Resolution);
+                    Assert.Null(hi.StreamInfo.Framerate);
+                    Assert.Null(hi.StreamInfo.Audio);
+                    Assert.Null(hi.StreamInfo.Video);
+                    Assert.Null(hi.StreamInfo.Subtitles);
+                    Assert.Null(hi.StreamInfo.ClosedCaptions);
+
+                },
+                audio_only =>
+                {
+                    Assert.Equal(65000, audio_only.StreamInfo.Bandwidth);
+                    Assert.Null(audio_only.StreamInfo.AverageBandwidth);
+                    Assert.Collection(
+                        audio_only.StreamInfo.Codecs,
+                        codec => Assert.Equal("mp4a.40.5", codec));
+                    Assert.Null(audio_only.StreamInfo.Resolution);
+                    Assert.Null(audio_only.StreamInfo.Framerate);
+                    Assert.Null(audio_only.StreamInfo.Audio);
+                    Assert.Null(audio_only.StreamInfo.Video);
+                    Assert.Null(audio_only.StreamInfo.Subtitles);
+                    Assert.Null(audio_only.StreamInfo.ClosedCaptions);
+                });
+            Assert.Collection(
+                result.IntraFrameStreamsInfo,
+                low =>
+                {
+                    Assert.Equal(86000, low.Bandwidth);
+                    Assert.Equal("low/iframe.m3u8", low.Uri.ToString());
+                    Assert.Null(low.AverageBandwidth);
+                    Assert.Empty(low.Codecs);
+                    Assert.Null(low.Resolution);
+                    Assert.Null(low.Framerate);
+                    Assert.Null(low.Video);
+                },
+                mid =>
+                {
+                    Assert.Equal(150000, mid.Bandwidth);
+                    Assert.Equal("mid/iframe.m3u8", mid.Uri.ToString());
+                    Assert.Null(mid.AverageBandwidth);
+                    Assert.Empty(mid.Codecs);
+                    Assert.Null(mid.Resolution);
+                    Assert.Null(mid.Framerate);
+                    Assert.Null(mid.Video);
+                },
+                hi =>
+                {
+                    Assert.Equal(550000, hi.Bandwidth);
+                    Assert.Equal("hi/iframe.m3u8", hi.Uri.ToString());
+                    Assert.Null(hi.AverageBandwidth);
+                    Assert.Empty(hi.Codecs);
+                    Assert.Null(hi.Resolution);
+                    Assert.Null(hi.Framerate);
+                    Assert.Null(hi.Video);
+                });
         }
 
         [Fact]

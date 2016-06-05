@@ -15,6 +15,8 @@ namespace Hls
 
         public IList<VariantStream> VariantStreams { get; set; } = new List<VariantStream>();
 
+        public IList<IntraFrameStreamInfo> IntraFrameStreamsInfo { get; set; } = new List<IntraFrameStreamInfo>();
+
         public int? Version { get; set; }
 
         public void Complete()

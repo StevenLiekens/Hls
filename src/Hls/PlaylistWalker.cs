@@ -2,6 +2,7 @@
 using Hls.EOL;
 using Hls.EXTINF;
 using Hls.EXT_X_ENDLIST;
+using Hls.EXT_X_I_FRAME_STREAM_INF;
 using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
 using Hls.EXT_X_STREAM_INF;
@@ -10,11 +11,14 @@ using Hls.EXT_X_VERSION;
 using Hls.playlist;
 using Txt.Core;
 using Uri.URI;
+using Uri.URI_reference;
 
 namespace Hls
 {
     public class PlaylistWalker : Walker
     {
+        private readonly IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser;
+
         private readonly IParser<ExtInf, Tuple<TimeSpan, string>> infoParser;
 
         private readonly IParser<ExtKey, Key> keyParser;
@@ -41,7 +45,8 @@ namespace Hls
             IParser<ExtMediaSequence, int> mediaSequenceParser,
             IParser<ExtKey, Key> keyParser,
             IParser<ExtStreamInf, StreamInfo> streamInfParser,
-            IParser<ExtInf, Tuple<TimeSpan, string>> infoParser)
+            IParser<ExtInf, Tuple<TimeSpan, string>> infoParser,
+            IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
@@ -49,6 +54,7 @@ namespace Hls
             this.keyParser = keyParser;
             this.streamInfParser = streamInfParser;
             this.infoParser = infoParser;
+            this.iframeStreamInfParser = iframeStreamInfParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -107,6 +113,18 @@ namespace Hls
             }
         }
 
+        public void Enter(ExtIFrameStreamInf iFrameStreamInf)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Master;
+            }
+            else if (Result.PlaylistType == PlaylistType.Media)
+            {
+                throw new InvalidOperationException("EXT-X-I-FRAME-STREAM-INF cannot appear in a Media Playlist.");
+            }
+        }
+
         public void Enter(ExtMediaSequence mediaSequence)
         {
             if (Result.PlaylistType == PlaylistType.Unknown)
@@ -129,7 +147,7 @@ namespace Hls
             Result.Complete();
         }
 
-        public void Exit(UniformResourceIdentifier uri)
+        public void Exit(UriReference uri)
         {
             switch (Result.PlaylistType)
             {
@@ -152,13 +170,19 @@ namespace Hls
             return false;
         }
 
+        public bool Walk(ExtIFrameStreamInf iFrameStreamInf)
+        {
+            Result.IntraFrameStreamsInfo.Add(iframeStreamInfParser.Parse(iFrameStreamInf));
+            return false;
+        }
+
         public bool Walk(ExtTargetDuration targetDuration)
         {
             Result.TargetDuration = targetDurationParser.Parse(targetDuration);
             return false;
         }
 
-        public bool Walk(UniformResourceIdentifier uri)
+        public bool Walk(UriReference uri)
         {
             switch (Result.PlaylistType)
             {
