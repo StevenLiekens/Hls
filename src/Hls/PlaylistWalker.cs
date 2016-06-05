@@ -3,6 +3,7 @@ using Hls.duration;
 using Hls.EXTINF;
 using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
+using Hls.EXT_X_STREAM_INF;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.playlist;
@@ -16,32 +17,38 @@ namespace Hls
     {
         private readonly IParser<Duration, TimeSpan> durationParser;
 
+        private readonly IParser<ExtKey, Key> keyParser;
+
         private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
+
+        private readonly IParser<ExtStreamInf, StreamInfo> streamInfParser;
 
         private readonly IParser<ExtTargetDuration, TimeSpan> targetDurationParser;
 
         private readonly IParser<ExtVersion, int> versionParser;
 
-        private readonly IParser<ExtKey, Key> keyParser;
+        private Key key;
 
-        private MediaSegment currentSegment;
+        private MediaSegment mediaSegment;
 
         private int sequence;
 
-        private Key key;
+        private VariantStream variantStream;
 
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
             IParser<ExtTargetDuration, TimeSpan> targetDurationParser,
             IParser<Duration, TimeSpan> durationParser,
             IParser<ExtMediaSequence, int> mediaSequenceParser,
-            IParser<ExtKey, Key> keyParser)
+            IParser<ExtKey, Key> keyParser,
+            IParser<ExtStreamInf, StreamInfo> streamInfParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
             this.durationParser = durationParser;
             this.mediaSequenceParser = mediaSequenceParser;
             this.keyParser = keyParser;
+            this.streamInfParser = streamInfParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -53,12 +60,32 @@ namespace Hls
 
         public void Enter(ExtInf inf)
         {
-            currentSegment = new MediaSegment();
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Media;
+            }
+            else if (Result.PlaylistType == PlaylistType.Master)
+            {
+                throw new InvalidOperationException("EXTINF is not valid in a Master Playlist");
+            }
+            mediaSegment = new MediaSegment();
+        }
+
+        public void Enter(ExtStreamInf streamInf)
+        {
+            if (Result.PlaylistType == PlaylistType.Unknown)
+            {
+                Result.PlaylistType = PlaylistType.Master;
+            }
+            else if (Result.PlaylistType == PlaylistType.Media)
+            {
+                throw new InvalidOperationException("EXT-X-STREAM-INF is not valid in a Media Playlist");
+            }
         }
 
         public void Enter(ExtMediaSequence mediaSequence)
         {
-            if (currentSegment != null)
+            if (mediaSegment != null)
             {
                 throw new InvalidOperationException(
                     "The EXT-X-MEDIA-SEQUENCE tag MUST appear before the first Media Segment in the Playlist.");
@@ -72,13 +99,19 @@ namespace Hls
 
         public void Exit(UniformResourceIdentifier uri)
         {
-            if (currentSegment == null)
+            switch (Result.PlaylistType)
             {
-                return;
+                case PlaylistType.Master:
+                    Result.VariantStreams.Add(variantStream);
+                    break;
+                case PlaylistType.Media:
+                    mediaSegment.Sequence = sequence++;
+                    mediaSegment.Key = key;
+                    Result.MediaSegments.Add(mediaSegment);
+                    break;
+                case PlaylistType.Unknown:
+                    throw new InvalidOperationException();
             }
-            currentSegment.Sequence = sequence++;
-            currentSegment.Key = key;
-            Result.MediaSegments.Add(currentSegment);
         }
 
         public bool Walk(ExtVersion version)
@@ -95,27 +128,37 @@ namespace Hls
 
         public bool Walk(Duration duration)
         {
-            if (currentSegment == null)
+            if (mediaSegment == null)
             {
                 throw new InvalidOperationException();
             }
-            currentSegment.Duration = durationParser.Parse(duration);
+            mediaSegment.Duration = durationParser.Parse(duration);
             return false;
         }
 
         public bool Walk(Title title)
         {
-            if (currentSegment == null)
+            if (mediaSegment == null)
             {
                 throw new InvalidOperationException();
             }
-            currentSegment.Title = title.Text;
+            mediaSegment.Title = title.Text;
             return false;
         }
 
         public bool Walk(UniformResourceIdentifier uri)
         {
-            currentSegment.Location = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
+            switch (Result.PlaylistType)
+            {
+                case PlaylistType.Master:
+                    variantStream.Location = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
+                    break;
+                case PlaylistType.Media:
+                    mediaSegment.Location = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             return false;
         }
 
@@ -128,6 +171,15 @@ namespace Hls
         public bool Walk(ExtKey key)
         {
             this.key = keyParser.Parse(key);
+            return false;
+        }
+
+        public bool Walk(ExtStreamInf streamInf)
+        {
+            variantStream = new VariantStream
+            {
+                StreamInfo = streamInfParser.Parse(streamInf)
+            };
             return false;
         }
     }

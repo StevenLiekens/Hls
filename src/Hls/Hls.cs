@@ -9,6 +9,7 @@ using Hls.decimal_resolution;
 using Hls.duration;
 using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
+using Hls.EXT_X_STREAM_INF;
 using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.hexadecimal_sequence;
@@ -96,7 +97,8 @@ namespace Hls
             var attributeParser = new AttributeParser(attributeValueParser);
             var attributeListParser = new AttributeListParser(attributeParser);
             var extKeyParser = new ExtKeyParser(attributeListParser);
-            var walker = new PlaylistWalker(extVersionParser, extTargetDurationParser, durationParser, extMediaSequenceParser, extKeyParser);
+            var extStreamInfParser = new ExtStreamInfParser(attributeListParser);
+            var walker = new PlaylistWalker(extVersionParser, extTargetDurationParser, durationParser, extMediaSequenceParser, extKeyParser, extStreamInfParser);
             result.Element.Walk(walker);
             return walker.Result;
         }
