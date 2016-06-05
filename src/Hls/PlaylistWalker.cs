@@ -1,5 +1,4 @@
 ﻿using System;
-using Hls.duration;
 using Hls.EXTINF;
 using Hls.EXT_X_KEY;
 using Hls.EXT_X_MEDIA_SEQUENCE;
@@ -15,8 +14,6 @@ namespace Hls
 {
     public class PlaylistWalker : Walker
     {
-        private readonly IParser<Duration, TimeSpan> durationParser;
-
         private readonly IParser<ExtKey, Key> keyParser;
 
         private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
@@ -26,6 +23,8 @@ namespace Hls
         private readonly IParser<ExtTargetDuration, TimeSpan> targetDurationParser;
 
         private readonly IParser<ExtVersion, int> versionParser;
+
+        private readonly IParser<ExtInf, Tuple<TimeSpan, string>> infoParser;
 
         private Key key;
 
@@ -38,17 +37,17 @@ namespace Hls
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
             IParser<ExtTargetDuration, TimeSpan> targetDurationParser,
-            IParser<Duration, TimeSpan> durationParser,
             IParser<ExtMediaSequence, int> mediaSequenceParser,
             IParser<ExtKey, Key> keyParser,
-            IParser<ExtStreamInf, StreamInfo> streamInfParser)
+            IParser<ExtStreamInf, StreamInfo> streamInfParser,
+            IParser<ExtInf, Tuple<TimeSpan, string>> infoParser)
         {
             this.versionParser = versionParser;
             this.targetDurationParser = targetDurationParser;
-            this.durationParser = durationParser;
             this.mediaSequenceParser = mediaSequenceParser;
             this.keyParser = keyParser;
             this.streamInfParser = streamInfParser;
+            this.infoParser = infoParser;
         }
 
         public PlaylistFile Result { get; private set; }
@@ -126,26 +125,6 @@ namespace Hls
             return false;
         }
 
-        public bool Walk(Duration duration)
-        {
-            if (mediaSegment == null)
-            {
-                throw new InvalidOperationException();
-            }
-            mediaSegment.Duration = durationParser.Parse(duration);
-            return false;
-        }
-
-        public bool Walk(Title title)
-        {
-            if (mediaSegment == null)
-            {
-                throw new InvalidOperationException();
-            }
-            mediaSegment.Title = title.Text;
-            return false;
-        }
-
         public bool Walk(UniformResourceIdentifier uri)
         {
             switch (Result.PlaylistType)
@@ -171,6 +150,17 @@ namespace Hls
         public bool Walk(ExtKey key)
         {
             this.key = keyParser.Parse(key);
+            return false;
+        }
+
+        public bool Walk(ExtInf inf)
+        {
+            var info = infoParser.Parse(inf);
+            mediaSegment = new MediaSegment
+            {
+                Duration = info.Item1,
+                Title = info.Item2
+            };
             return false;
         }
 
