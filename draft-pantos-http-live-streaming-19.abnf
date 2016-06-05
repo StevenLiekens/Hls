@@ -55,7 +55,7 @@ line                          = (tag / comment / empty / URI-reference) EOL
 comment                       = "#" [(%x45.58 (%x21-53 / %x55-7E / WSP) / %x45 (%x21-57 / %x59-7E / WSP) / (%x21-44 / %x46-7E / WSP)) *(VCHAR / WSP)]
                               ; Any string that doesn't start with "EXT"
 empty                         = ""
-EOL                           = CRLF / LF / CR
+EOL                           = LF / CRLF
 attribute-list                = attribute *("," attribute)
 attribute                     = attribute-name "=" attribute-value
 attribute-name                = 1*(%x41-5A / DIGIT / "-")

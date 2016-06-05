@@ -1,6 +1,5 @@
 ﻿using System;
 using Txt.ABNF;
-using Txt.ABNF.Core.CR;
 using Txt.ABNF.Core.CRLF;
 using Txt.ABNF.Core.LF;
 using Txt.Core;
@@ -11,8 +10,6 @@ namespace Hls.EOL
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
-        private readonly ILexer<CarriageReturn> carriageReturnLexer;
-
         private readonly ILexer<LineFeed> lineFeedLexer;
 
         private readonly ILexer<NewLine> newLineLexer;
@@ -20,8 +17,7 @@ namespace Hls.EOL
         public EndOfLineLexerFactory(
             IAlternationLexerFactory alternationLexerFactory,
             ILexer<NewLine> newLineLexer,
-            ILexer<LineFeed> lineFeedLexer,
-            ILexer<CarriageReturn> carriageReturnLexer)
+            ILexer<LineFeed> lineFeedLexer)
         {
             if (alternationLexerFactory == null)
             {
@@ -35,21 +31,18 @@ namespace Hls.EOL
             {
                 throw new ArgumentNullException(nameof(lineFeedLexer));
             }
-            if (carriageReturnLexer == null)
-            {
-                throw new ArgumentNullException(nameof(carriageReturnLexer));
-            }
             this.alternationLexerFactory = alternationLexerFactory;
             this.newLineLexer = newLineLexer;
             this.lineFeedLexer = lineFeedLexer;
-            this.carriageReturnLexer = carriageReturnLexer;
         }
 
         public ILexer<EndOfLine> Create()
         {
             return
                 new EndOfLineLexer(
-                    alternationLexerFactory.Create(newLineLexer, lineFeedLexer, carriageReturnLexer));
+                    alternationLexerFactory.Create(
+                        lineFeedLexer,
+                        newLineLexer));
         }
     }
 }
