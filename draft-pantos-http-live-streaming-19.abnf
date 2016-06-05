@@ -42,7 +42,8 @@ EXT-X-ENDLIST                 = "#EXT-X-ENDLIST"
 EXT-X-PLAYLIST-TYPE           = <TODO>
 EXT-X-I-FRAMES-ONLY           = <TODO>
 EXT-X-MEDIA                   = "#EXT-X-MEDIA:" attribute-list
-EXT-X-STREAM-INF              = "#EXT-X-STREAM-INF:" attribute-list
+EXT-X-STREAM-INF              = "#EXT-X-STREAM-INF:" attribute-list EOL URI-reference
+                              ; URI-reference: see rfc3986
 EXT-X-I-FRAME-STREAM-INF      = "#EXT-X-I-FRAME-STREAM-INF" attribute-list
 EXT-X-SESSION-DATA            = <TODO>
 EXT-X-SESSION-KEY             = <TODO>

@@ -191,54 +191,54 @@ http://example.com/audio-only.m3u8
                 result.VariantStreams,
                 low =>
                 {
-                    Assert.Equal(1280000, low.StreamInfo.Bandwidth);
-                    Assert.Equal(1000000, low.StreamInfo.AverageBandwidth);
-                    Assert.Empty(low.StreamInfo.Codecs);
-                    Assert.Null(low.StreamInfo.Resolution);
-                    Assert.Null(low.StreamInfo.Framerate);
-                    Assert.Null(low.StreamInfo.Audio);
-                    Assert.Null(low.StreamInfo.Video);
-                    Assert.Null(low.StreamInfo.Subtitles);
-                    Assert.Null(low.StreamInfo.ClosedCaptions);
+                    Assert.Equal(1280000, low.Bandwidth);
+                    Assert.Equal(1000000, low.AverageBandwidth);
+                    Assert.Empty(low.Codecs);
+                    Assert.Null(low.Resolution);
+                    Assert.Null(low.Framerate);
+                    Assert.Null(low.Audio);
+                    Assert.Null(low.Video);
+                    Assert.Null(low.Subtitles);
+                    Assert.Null(low.ClosedCaptions);
                 },
                 mid =>
                 {
-                    Assert.Equal(2560000, mid.StreamInfo.Bandwidth);
-                    Assert.Equal(2000000, mid.StreamInfo.AverageBandwidth);
-                    Assert.Empty(mid.StreamInfo.Codecs);
-                    Assert.Null(mid.StreamInfo.Resolution);
-                    Assert.Null(mid.StreamInfo.Framerate);
-                    Assert.Null(mid.StreamInfo.Audio);
-                    Assert.Null(mid.StreamInfo.Video);
-                    Assert.Null(mid.StreamInfo.Subtitles);
-                    Assert.Null(mid.StreamInfo.ClosedCaptions);
+                    Assert.Equal(2560000, mid.Bandwidth);
+                    Assert.Equal(2000000, mid.AverageBandwidth);
+                    Assert.Empty(mid.Codecs);
+                    Assert.Null(mid.Resolution);
+                    Assert.Null(mid.Framerate);
+                    Assert.Null(mid.Audio);
+                    Assert.Null(mid.Video);
+                    Assert.Null(mid.Subtitles);
+                    Assert.Null(mid.ClosedCaptions);
 
                 },
                 hi =>
                 {
-                    Assert.Equal(7680000, hi.StreamInfo.Bandwidth);
-                    Assert.Equal(6000000, hi.StreamInfo.AverageBandwidth);
-                    Assert.Empty(hi.StreamInfo.Codecs);
-                    Assert.Null(hi.StreamInfo.Resolution);
-                    Assert.Null(hi.StreamInfo.Framerate);
-                    Assert.Null(hi.StreamInfo.Audio);
-                    Assert.Null(hi.StreamInfo.Video);
-                    Assert.Null(hi.StreamInfo.Subtitles);
-                    Assert.Null(hi.StreamInfo.ClosedCaptions);
+                    Assert.Equal(7680000, hi.Bandwidth);
+                    Assert.Equal(6000000, hi.AverageBandwidth);
+                    Assert.Empty(hi.Codecs);
+                    Assert.Null(hi.Resolution);
+                    Assert.Null(hi.Framerate);
+                    Assert.Null(hi.Audio);
+                    Assert.Null(hi.Video);
+                    Assert.Null(hi.Subtitles);
+                    Assert.Null(hi.ClosedCaptions);
                 },
                 audio_only =>
                 {
-                    Assert.Equal(65000, audio_only.StreamInfo.Bandwidth);
-                    Assert.Null(audio_only.StreamInfo.AverageBandwidth);
+                    Assert.Equal(65000, audio_only.Bandwidth);
+                    Assert.Null(audio_only.AverageBandwidth);
                     Assert.Collection(
-                        audio_only.StreamInfo.Codecs,
+                        audio_only.Codecs,
                         codec => Assert.Equal("mp4a.40.5", codec));
-                    Assert.Null(audio_only.StreamInfo.Resolution);
-                    Assert.Null(audio_only.StreamInfo.Framerate);
-                    Assert.Null(audio_only.StreamInfo.Audio);
-                    Assert.Null(audio_only.StreamInfo.Video);
-                    Assert.Null(audio_only.StreamInfo.Subtitles);
-                    Assert.Null(audio_only.StreamInfo.ClosedCaptions);
+                    Assert.Null(audio_only.Resolution);
+                    Assert.Null(audio_only.Framerate);
+                    Assert.Null(audio_only.Audio);
+                    Assert.Null(audio_only.Video);
+                    Assert.Null(audio_only.Subtitles);
+                    Assert.Null(audio_only.ClosedCaptions);
                 });
         }
 
@@ -264,54 +264,54 @@ audio-only.m3u8
                 result.VariantStreams,
                 low =>
                 {
-                    Assert.Equal(1280000, low.StreamInfo.Bandwidth);
-                    Assert.Null(low.StreamInfo.AverageBandwidth);
-                    Assert.Empty(low.StreamInfo.Codecs);
-                    Assert.Null(low.StreamInfo.Resolution);
-                    Assert.Null(low.StreamInfo.Framerate);
-                    Assert.Null(low.StreamInfo.Audio);
-                    Assert.Null(low.StreamInfo.Video);
-                    Assert.Null(low.StreamInfo.Subtitles);
-                    Assert.Null(low.StreamInfo.ClosedCaptions);
+                    Assert.Equal(1280000, low.Bandwidth);
+                    Assert.Null(low.AverageBandwidth);
+                    Assert.Empty(low.Codecs);
+                    Assert.Null(low.Resolution);
+                    Assert.Null(low.Framerate);
+                    Assert.Null(low.Audio);
+                    Assert.Null(low.Video);
+                    Assert.Null(low.Subtitles);
+                    Assert.Null(low.ClosedCaptions);
                 },
                 mid =>
                 {
-                    Assert.Equal(2560000, mid.StreamInfo.Bandwidth);
-                    Assert.Null(mid.StreamInfo.AverageBandwidth);
-                    Assert.Empty(mid.StreamInfo.Codecs);
-                    Assert.Null(mid.StreamInfo.Resolution);
-                    Assert.Null(mid.StreamInfo.Framerate);
-                    Assert.Null(mid.StreamInfo.Audio);
-                    Assert.Null(mid.StreamInfo.Video);
-                    Assert.Null(mid.StreamInfo.Subtitles);
-                    Assert.Null(mid.StreamInfo.ClosedCaptions);
+                    Assert.Equal(2560000, mid.Bandwidth);
+                    Assert.Null(mid.AverageBandwidth);
+                    Assert.Empty(mid.Codecs);
+                    Assert.Null(mid.Resolution);
+                    Assert.Null(mid.Framerate);
+                    Assert.Null(mid.Audio);
+                    Assert.Null(mid.Video);
+                    Assert.Null(mid.Subtitles);
+                    Assert.Null(mid.ClosedCaptions);
                 },
                 hi =>
                 {
-                    Assert.Equal(7680000, hi.StreamInfo.Bandwidth);
-                    Assert.Null(hi.StreamInfo.AverageBandwidth);
-                    Assert.Empty(hi.StreamInfo.Codecs);
-                    Assert.Null(hi.StreamInfo.Resolution);
-                    Assert.Null(hi.StreamInfo.Framerate);
-                    Assert.Null(hi.StreamInfo.Audio);
-                    Assert.Null(hi.StreamInfo.Video);
-                    Assert.Null(hi.StreamInfo.Subtitles);
-                    Assert.Null(hi.StreamInfo.ClosedCaptions);
+                    Assert.Equal(7680000, hi.Bandwidth);
+                    Assert.Null(hi.AverageBandwidth);
+                    Assert.Empty(hi.Codecs);
+                    Assert.Null(hi.Resolution);
+                    Assert.Null(hi.Framerate);
+                    Assert.Null(hi.Audio);
+                    Assert.Null(hi.Video);
+                    Assert.Null(hi.Subtitles);
+                    Assert.Null(hi.ClosedCaptions);
 
                 },
                 audio_only =>
                 {
-                    Assert.Equal(65000, audio_only.StreamInfo.Bandwidth);
-                    Assert.Null(audio_only.StreamInfo.AverageBandwidth);
+                    Assert.Equal(65000, audio_only.Bandwidth);
+                    Assert.Null(audio_only.AverageBandwidth);
                     Assert.Collection(
-                        audio_only.StreamInfo.Codecs,
+                        audio_only.Codecs,
                         codec => Assert.Equal("mp4a.40.5", codec));
-                    Assert.Null(audio_only.StreamInfo.Resolution);
-                    Assert.Null(audio_only.StreamInfo.Framerate);
-                    Assert.Null(audio_only.StreamInfo.Audio);
-                    Assert.Null(audio_only.StreamInfo.Video);
-                    Assert.Null(audio_only.StreamInfo.Subtitles);
-                    Assert.Null(audio_only.StreamInfo.ClosedCaptions);
+                    Assert.Null(audio_only.Resolution);
+                    Assert.Null(audio_only.Framerate);
+                    Assert.Null(audio_only.Audio);
+                    Assert.Null(audio_only.Video);
+                    Assert.Null(audio_only.Subtitles);
+                    Assert.Null(audio_only.ClosedCaptions);
                 });
             Assert.Collection(
                 result.IntraFrameStreamsInfo,

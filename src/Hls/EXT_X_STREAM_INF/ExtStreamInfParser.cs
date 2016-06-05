@@ -5,7 +5,7 @@ using Txt.Core;
 
 namespace Hls.EXT_X_STREAM_INF
 {
-    public class ExtStreamInfParser : Parser<ExtStreamInf, StreamInfo>
+    public class ExtStreamInfParser : Parser<ExtStreamInf, VariantStream>
     {
         private readonly IParser<AttributeList, IDictionary<string, object>> attributeListParser;
 
@@ -18,9 +18,9 @@ namespace Hls.EXT_X_STREAM_INF
             this.attributeListParser = attributeListParser;
         }
 
-        protected override StreamInfo ParseImpl(ExtStreamInf value)
+        protected override VariantStream ParseImpl(ExtStreamInf value)
         {
-            var result = new StreamInfo();
+            var result = new VariantStream();
             var values = attributeListParser.Parse((AttributeList)value[1]);
             object tmp;
             if (!values.TryGetValue(@"BANDWIDTH", out tmp))
@@ -64,6 +64,7 @@ namespace Hls.EXT_X_STREAM_INF
             {
                 result.ClosedCaptions = (string)tmp;
             }
+            result.Uri = new System.Uri(value[3].Text, UriKind.RelativeOrAbsolute);
             return result;
         }
     }

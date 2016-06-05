@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Hls.EOL;
 using Hls.EXTINF;
 using Hls.EXT_X_DISCONTINUITY;
@@ -33,7 +32,7 @@ namespace Hls
 
         private readonly IParser<ExtMediaSequence, int> mediaSequenceParser;
 
-        private readonly IParser<ExtStreamInf, StreamInfo> streamInfParser;
+        private readonly IParser<ExtStreamInf, VariantStream> streamInfParser;
 
         private readonly IParser<ExtTargetDuration, TimeSpan> targetDurationParser;
 
@@ -49,21 +48,12 @@ namespace Hls
 
         private VariantStream variantStream;
 
-        private List<VariantStream> variantStreams { get; set; } = new List<VariantStream>();
-
-        private List<MediaSegment> mediaSegments { get; set; } = new List<MediaSegment>();
-
-        private List<IntraFrameStreamInfo> intraFrameStreamsInfo { get; set; } = new List<IntraFrameStreamInfo>();
-
-        private List<Rendition> renditions { get; set; } = new List<Rendition>();
-
-
         public PlaylistWalker(
             IParser<ExtVersion, int> versionParser,
             IParser<ExtTargetDuration, TimeSpan> targetDurationParser,
             IParser<ExtMediaSequence, int> mediaSequenceParser,
             IParser<ExtKey, Key> keyParser,
-            IParser<ExtStreamInf, StreamInfo> streamInfParser,
+            IParser<ExtStreamInf, VariantStream> streamInfParser,
             IParser<ExtInf, Tuple<TimeSpan, string>> infoParser,
             IParser<ExtIFrameStreamInf, IntraFrameStreamInfo> iframeStreamInfParser,
             IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser,
@@ -81,6 +71,10 @@ namespace Hls
         }
 
         public PlaylistFile Result { get; private set; }
+
+        private List<IntraFrameStreamInfo> intraFrameStreamsInfo { get; } = new List<IntraFrameStreamInfo>();
+
+        private List<Rendition> renditions { get; } = new List<Rendition>();
 
         public void Enter(Playlist playlist)
         {
@@ -212,8 +206,6 @@ namespace Hls
 
         public void Exit(Playlist playlist)
         {
-            Result.MediaSegments = mediaSegments;
-            Result.VariantStreams = variantStreams;
             Result.IntraFrameStreamsInfo = intraFrameStreamsInfo;
         }
 
@@ -222,29 +214,12 @@ namespace Hls
             switch (Result.PlaylistType)
             {
                 case PlaylistType.Master:
-                    variantStreams.Add(variantStream);
-                    if (variantStream.StreamInfo.Audio != null)
-                    {
-                        variantStream.StreamInfo.AlternativeAudio = renditions.FindAll(x => (x.Type == MediaType.Audio) && (x.GroupId == variantStream.StreamInfo.Audio));
-                    }
-                    if (variantStream.StreamInfo.Video != null)
-                    {
-                        variantStream.StreamInfo.AlternativeVideo = renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.StreamInfo.Video));
-                    }
-                    if (variantStream.StreamInfo.Subtitles != null)
-                    {
-                        variantStream.StreamInfo.AlternativeSubtitles = renditions.FindAll(x => (x.Type == MediaType.Subtitles) && (x.GroupId == variantStream.StreamInfo.Subtitles));
-                    }
-                    if (variantStream.StreamInfo.ClosedCaptions != null)
-                    {
-                        variantStream.StreamInfo.AlternativeClosedCaptions = renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.StreamInfo.ClosedCaptions));
-                    }
                     break;
                 case PlaylistType.Media:
                     mediaSegment.Sequence = sequence++;
                     mediaSegment.DiscontinuitySequence = discontinuitySequence;
                     mediaSegment.Key = key;
-                    mediaSegments.Add(mediaSegment);
+                    Result.MediaSegments.Add(mediaSegment);
                     break;
                 case PlaylistType.Unknown:
                     throw new InvalidOperationException("A URI-line MUST NOT appear before the first playlist tag.");
@@ -262,7 +237,8 @@ namespace Hls
             var streamInfo = iframeStreamInfParser.Parse(iFrameStreamInf);
             if (streamInfo.Video != null)
             {
-                streamInfo.AlternativeVideo = renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == streamInfo.Video));
+                streamInfo.AlternativeVideo =
+                    renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == streamInfo.Video));
             }
             intraFrameStreamsInfo.Add(streamInfo);
             return false;
@@ -294,16 +270,9 @@ namespace Hls
 
         public bool Walk(UriReference uri)
         {
-            switch (Result.PlaylistType)
+            if (Result.PlaylistType == PlaylistType.Media)
             {
-                case PlaylistType.Master:
-                    variantStream.Uri = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
-                    break;
-                case PlaylistType.Media:
-                    mediaSegment.Uri = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                mediaSegment.Uri = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
             }
             return false;
         }
@@ -343,10 +312,28 @@ namespace Hls
 
         public bool Walk(ExtStreamInf streamInf)
         {
-            variantStream = new VariantStream
+            variantStream = streamInfParser.Parse(streamInf);
+            if (variantStream.Audio != null)
             {
-                StreamInfo = streamInfParser.Parse(streamInf)
-            };
+                variantStream.AlternativeAudio =
+                    renditions.FindAll(x => (x.Type == MediaType.Audio) && (x.GroupId == variantStream.Audio));
+            }
+            if (variantStream.Video != null)
+            {
+                variantStream.AlternativeVideo =
+                    renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.Video));
+            }
+            if (variantStream.Subtitles != null)
+            {
+                variantStream.AlternativeSubtitles =
+                    renditions.FindAll(x => (x.Type == MediaType.Subtitles) && (x.GroupId == variantStream.Subtitles));
+            }
+            if (variantStream.ClosedCaptions != null)
+            {
+                variantStream.AlternativeClosedCaptions =
+                    renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.ClosedCaptions));
+            }
+            Result.VariantStreams.Add(variantStream);
             return false;
         }
     }
