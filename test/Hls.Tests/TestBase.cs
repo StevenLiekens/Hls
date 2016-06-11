@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using SimpleInjector;
 using Txt.ABNF;
-using Uri;
+using UriSyntax;
 
 namespace Hls
 {

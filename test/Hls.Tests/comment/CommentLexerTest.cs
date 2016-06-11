@@ -2,7 +2,7 @@
 using SimpleInjector;
 using Txt.Core;
 using Txt.ABNF;
-using Uri;
+using UriSyntax;
 using Xunit;
 
 namespace Hls.comment

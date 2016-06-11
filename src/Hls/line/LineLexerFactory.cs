@@ -5,7 +5,7 @@ using Hls.EOL;
 using Hls.tag;
 using Txt.ABNF;
 using Txt.Core;
-using Uri.URI_reference;
+using UriSyntax.URI_reference;
 
 namespace Hls.line
 {

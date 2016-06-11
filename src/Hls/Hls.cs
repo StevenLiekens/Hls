@@ -23,7 +23,7 @@ using Hls.signed_decimal_floating_point;
 using SimpleInjector;
 using Txt.ABNF;
 using Txt.Core;
-using Uri;
+using UriSyntax;
 using Registration = Txt.Core.Registration;
 
 namespace Hls

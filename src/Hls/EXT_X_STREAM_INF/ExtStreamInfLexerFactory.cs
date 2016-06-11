@@ -3,7 +3,7 @@ using Hls.attribute_list;
 using Hls.EOL;
 using Txt.ABNF;
 using Txt.Core;
-using Uri.URI_reference;
+using UriSyntax.URI_reference;
 
 namespace Hls.EXT_X_STREAM_INF
 {

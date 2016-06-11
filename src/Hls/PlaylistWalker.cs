@@ -14,7 +14,7 @@ using Hls.EXT_X_TARGETDURATION;
 using Hls.EXT_X_VERSION;
 using Hls.playlist;
 using Txt.Core;
-using Uri.URI_reference;
+using UriSyntax.URI_reference;
 
 namespace Hls
 {
