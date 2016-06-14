@@ -1,34 +1,14 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 using Txt.Core;
 using Txt.ABNF;
 
 namespace Hls.EXTINF
 {
-    public sealed class ExtInfLexer : Lexer<ExtInf>
+    public sealed class ExtInfLexer : CompositeLexer<Concatenation, ExtInf>
     {
-        private readonly ILexer<Concatenation> innerLexer;
-
-        public ExtInfLexer(ILexer<Concatenation> innerLexer)
+        public ExtInfLexer([NotNull] ILexer<Concatenation> innerLexer)
+            : base(innerLexer)
         {
-            if (innerLexer == null)
-            {
-                throw new ArgumentNullException(nameof(innerLexer));
-            }
-            this.innerLexer = innerLexer;
-        }
-
-        public override ReadResult<ExtInf> ReadImpl(ITextScanner scanner)
-        {
-            if (scanner == null)
-            {
-                throw new ArgumentNullException(nameof(scanner));
-            }
-            var result = innerLexer.Read(scanner);
-            if (result.Success)
-            {
-                return ReadResult<ExtInf>.FromResult(new ExtInf(result.Element));
-            }
-            return ReadResult<ExtInf>.FromSyntaxError(SyntaxError.FromReadResult(result, scanner.GetContext()));
         }
     }
 }

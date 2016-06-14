@@ -1,33 +1,27 @@
-﻿using System;
-using Txt.Core;
+﻿using Txt.Core;
 using Txt.ABNF;
 
 namespace Hls.empty
 {
     public sealed class EmptyLexer : Lexer<Empty>
     {
-        public override ReadResult<Empty> ReadImpl(ITextScanner scanner)
+        protected override ReadResult<Empty> ReadImpl(ITextScanner scanner, ITextContext context)
         {
-            if (scanner == null)
+            var peek = scanner.Peek();
+            if (peek == -1)
             {
-                throw new ArgumentNullException(nameof(scanner));
+                return new ReadResult<Empty>(new Empty(new Terminal("", context)));
             }
-            if (scanner.EndOfInput)
+            var c = (char)peek;
+            if (c == '\r')
             {
-                return ReadResult<Empty>.FromResult(new Empty(new Terminal("", scanner.GetContext())));
+                return new ReadResult<Empty>(new Empty(new Terminal("", context)));
             }
-            if (scanner.TryMatch("\r\n").Success)
+            if (c == '\n')
             {
-                scanner.Unread("\r\n");
-                return ReadResult<Empty>.FromResult(new Empty(new Terminal("", scanner.GetContext())));
+                return new ReadResult<Empty>(new Empty(new Terminal("", context)));
             }
-            var matchResult = scanner.TryMatch("\n");
-            if (matchResult.Success)
-            {
-                scanner.Unread("\n");
-                return ReadResult<Empty>.FromResult(new Empty(new Terminal("", scanner.GetContext())));
-            }
-            return ReadResult<Empty>.FromSyntaxError(new SyntaxError(false, "", matchResult.Text, scanner.GetContext()));
+            return new ReadResult<Empty>(new SyntaxError(false, "", char.ToString(c), context));
         }
     }
 }

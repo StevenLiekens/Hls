@@ -1,35 +1,14 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 using Txt.Core;
 using Txt.ABNF;
 
 namespace Hls.EXT_X_TARGETDURATION
 {
-    public sealed class ExtTargetDurationLexer : Lexer<ExtTargetDuration>
+    public sealed class ExtTargetDurationLexer : CompositeLexer<Concatenation, ExtTargetDuration>
     {
-        private readonly ILexer<Concatenation> innerLexer;
-
-        public ExtTargetDurationLexer(ILexer<Concatenation> innerLexer)
+        public ExtTargetDurationLexer([NotNull] ILexer<Concatenation> innerLexer)
+            : base(innerLexer)
         {
-            if (innerLexer == null)
-            {
-                throw new ArgumentNullException(nameof(innerLexer));
-            }
-            this.innerLexer = innerLexer;
-        }
-
-        public override ReadResult<ExtTargetDuration> ReadImpl(ITextScanner scanner)
-        {
-            if (scanner == null)
-            {
-                throw new ArgumentNullException(nameof(scanner));
-            }
-            var result = innerLexer.Read(scanner);
-            if (result.Success)
-            {
-                return ReadResult<ExtTargetDuration>.FromResult(new ExtTargetDuration(result.Element));
-            }
-            return
-                ReadResult<ExtTargetDuration>.FromSyntaxError(SyntaxError.FromReadResult(result, scanner.GetContext()));
         }
     }
 }

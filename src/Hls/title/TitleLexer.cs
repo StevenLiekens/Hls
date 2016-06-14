@@ -1,34 +1,14 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 using Txt.Core;
 using Txt.ABNF;
 
 namespace Hls.title
 {
-    public sealed class TitleLexer : Lexer<Title>
+    public sealed class TitleLexer : CompositeLexer<Repetition, Title>
     {
-        private readonly ILexer<Repetition> innerLexer;
-
-        public TitleLexer(ILexer<Repetition> innerLexer)
+        public TitleLexer([NotNull] ILexer<Repetition> innerLexer)
+            : base(innerLexer)
         {
-            if (innerLexer == null)
-            {
-                throw new ArgumentNullException(nameof(innerLexer));
-            }
-            this.innerLexer = innerLexer;
-        }
-
-        public override ReadResult<Title> ReadImpl(ITextScanner scanner)
-        {
-            if (scanner == null)
-            {
-                throw new ArgumentNullException(nameof(scanner));
-            }
-            var result = innerLexer.Read(scanner);
-            if (result.Success)
-            {
-                return ReadResult<Title>.FromResult(new Title(result.Element));
-            }
-            return ReadResult<Title>.FromSyntaxError(SyntaxError.FromReadResult(result, scanner.GetContext()));
         }
     }
 }

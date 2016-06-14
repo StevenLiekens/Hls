@@ -1,26 +1,26 @@
 ﻿{
-    "version": "1.0.0-*",
-    "description": "Hls.Tests Class Library",
-    "authors": [ "Steven Liekens" ],
-    "frameworks": {
-        "netcoreapp1.0": {
-            "imports": [
-                "dotnet5.4",
-                "portable-net451+win8"
-            ]
-        }
+  "version": "1.0.0-*",
+  "description": "Hls.Tests Class Library",
+  "authors": [ "Steven Liekens" ],
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dotnet5.4",
+        "portable-net451+win8"
+      ]
+    }
+  },
+  "dependencies": {
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0-rc2-3002702"
     },
-    "dependencies": {
-        "Microsoft.NETCore.App": {
-            "type": "platform", 
-            "version": "1.0.0-rc2-*"
-        },
-        "Hls": { "target": "project" },
-        "xunit": "2.1.0-rc2-*",
-        "dotnet-test-xunit": "1.0.0-rc2-*",
-        "SimpleInjector": "3.1.3",
-        "Txt": "2.0.0-*",
-        "Txt.ABNF": "2.0.0-*"
-    },
-    "testRunner": "xunit"
+    "Hls": { "target": "project" },
+    "xunit": "2.1.0-rc2-*",
+    "dotnet-test-xunit": "1.0.0-rc2-*",
+    "SimpleInjector": "3.1.3",
+    "Txt": "2.0.0-*",
+    "Txt.ABNF": "2.0.0-*"
+  },
+  "testRunner": "xunit"
 }
