@@ -4,7 +4,7 @@ namespace Hls.EOF
 {
     public sealed class EndOfFileLexer : Lexer<EndOfFile>
     {
-        protected override ReadResult<EndOfFile> ReadImpl(ITextScanner scanner, ITextContext context)
+        protected override IReadResult<EndOfFile> ReadImpl(ITextScanner scanner, ITextContext context)
         {
             var peek = scanner.Peek();
             if (peek == -1)

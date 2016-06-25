@@ -77,7 +77,7 @@ namespace Hls
             {
                 throw new ArgumentException("Argument is an empty string.", text);
             }
-            ReadResult<Playlist> result;
+            IReadResult<Playlist> result;
             using (var src = new StringTextSource(text))
             using (var scanner = new TextScanner(src))
             {

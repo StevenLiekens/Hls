@@ -5,7 +5,7 @@ namespace Hls.empty
 {
     public sealed class EmptyLexer : Lexer<Empty>
     {
-        protected override ReadResult<Empty> ReadImpl(ITextScanner scanner, ITextContext context)
+        protected override IReadResult<Empty> ReadImpl(ITextScanner scanner, ITextContext context)
         {
             var peek = scanner.Peek();
             if (peek == -1)
