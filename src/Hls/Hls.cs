@@ -44,11 +44,10 @@ namespace Hls
         public static Hls CreateDefault()
         {
             var container = new Container();
-            var del = new Registrations.GetInstanceDelegate(service => container.GetInstance(service));
             var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(del));
-            registrations.AddRange(UriRegistrations.GetRegistrations(del));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(del));
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
             foreach (var registration in registrations)
             {
                 if (registration.Implementation != null)
