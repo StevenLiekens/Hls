@@ -5,19 +5,15 @@ configuration:
 platform: Any CPU
 init:
  - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
-install:
-- ps: Start-FileDownload 'https://dotnetcli.blob.core.windows.net/dotnet/beta/Installers/Latest/dotnet-dev-win-x64.latest.exe'
-- dotnet-dev-win-x64.latest.exe /quiet
-environment:
-  PATH: $(PATH);$(PROGRAMFILES)\dotnet\
 build_script:
 - appveyor-retry dotnet restore -v Minimal
-- dotnet build **\project.json -c %CONFIGURATION%
-- dotnet pack -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts .\src\Hls\project.json
+- dotnet build "src\Hls" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+- dotnet pack "src\Hls" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 test_script:
-- dotnet test .\test\Hls.Tests
+- dotnet build "test\Hls.Tests" -c %CONFIGURATION% --no-dependencies
+- dotnet test "test\Hls.Tests" -c %CONFIGURATION% --no-build
 artifacts:
-  - path: artifacts\*.nupkg
+  - path: artifacts\**\*.*
 deploy:
  - provider: NuGet
    server: https://www.myget.org/F/ci/api/v2/package
