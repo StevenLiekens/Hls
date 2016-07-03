@@ -1,25 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Hls.attribute;
-using Hls.attribute_list;
-using Hls.attribute_value;
-using Hls.decimal_floating_point;
-using Hls.decimal_integer;
-using Hls.decimal_resolution;
-using Hls.duration;
-using Hls.EXTINF;
-using Hls.EXT_X_DISCONTINUITY_SEQUENCE;
-using Hls.EXT_X_I_FRAME_STREAM_INF;
-using Hls.EXT_X_KEY;
-using Hls.EXT_X_MEDIA;
-using Hls.EXT_X_MEDIA_SEQUENCE;
-using Hls.EXT_X_STREAM_INF;
-using Hls.EXT_X_TARGETDURATION;
-using Hls.EXT_X_VERSION;
-using Hls.hexadecimal_sequence;
 using Hls.playlist;
-using Hls.quoted_string;
-using Hls.signed_decimal_floating_point;
+using JetBrains.Annotations;
 using SimpleInjector;
 using Txt.ABNF;
 using Txt.Core;
@@ -32,13 +14,20 @@ namespace Hls
     {
         private readonly ILexer<Playlist> playlistLexer;
 
-        public Hls(ILexer<Playlist> playlistLexer)
+        private readonly PlaylistWalker walker;
+
+        public Hls(ILexer<Playlist> playlistLexer, [NotNull] PlaylistWalker walker)
         {
             if (playlistLexer == null)
             {
                 throw new ArgumentNullException(nameof(playlistLexer));
             }
+            if (walker == null)
+            {
+                throw new ArgumentNullException(nameof(walker));
+            }
             this.playlistLexer = playlistLexer;
+            this.walker = walker;
         }
 
         public static Hls CreateDefault()
@@ -63,6 +52,7 @@ namespace Hls
                     container.RegisterSingleton(registration.Service, registration.Factory);
                 }
             }
+            container.Register<PlaylistWalker>();
             container.Verify();
             return container.GetInstance<Hls>();
         }
@@ -87,41 +77,6 @@ namespace Hls
             {
                 throw new InvalidOperationException();
             }
-            var extVersionParser = new ExtVersionParser();
-            var extTargetDurationParser = new ExtTargetDurationParser();
-            var durationParser = new DurationParser();
-            var extMediaSequenceParser = new ExtMediaSequenceParser();
-            var hexadecimalSequenceParser = new HexadecimalSequenceParser();
-            var decimalIntegerParser = new DecimalIntegerParser();
-            var decimalResolutionParser = new DecimalResolutionParser(decimalIntegerParser);
-            var decimalFloatingPointParser = new DecimalFloatingPointParser();
-            var signedDecimalFloatingPointParser = new SignedDecimalFloatingPointParser(decimalFloatingPointParser);
-            var quotedStringParser = new QuotedStringParser();
-            var attributeValueParser = new AttributeValueParser(
-                hexadecimalSequenceParser,
-                decimalResolutionParser,
-                decimalFloatingPointParser,
-                signedDecimalFloatingPointParser,
-                decimalIntegerParser,
-                quotedStringParser);
-            var attributeParser = new AttributeParser(attributeValueParser);
-            var attributeListParser = new AttributeListParser(attributeParser);
-            var extKeyParser = new ExtKeyParser(attributeListParser);
-            var extStreamInfParser = new ExtStreamInfParser(attributeListParser);
-            var extInfParser = new ExtInfParser(durationParser);
-            var extIFrameStreamInfParser = new ExtIFrameStreamInfParser(attributeListParser);
-            var extDiscontinuitySequenceParser = new ExtDiscontinuitySequenceParser(decimalIntegerParser);
-            var extMediaParser = new ExtMediaParser(attributeListParser);
-            var walker = new PlaylistWalker(
-                extVersionParser,
-                extTargetDurationParser,
-                extMediaSequenceParser,
-                extKeyParser,
-                extStreamInfParser,
-                extInfParser,
-                extIFrameStreamInfParser,
-                extDiscontinuitySequenceParser,
-                extMediaParser);
             result.Element.Walk(walker);
             return walker.Result;
         }
