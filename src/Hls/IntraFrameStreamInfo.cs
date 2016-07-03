@@ -17,7 +17,7 @@ namespace Hls
 
         public Tuple<int, int> Resolution { get; set; }
 
-        public System.Uri Uri { get; set; }
+        public Uri Uri { get; set; }
 
         public string Video { get; set; }
     }

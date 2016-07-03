@@ -52,7 +52,7 @@ namespace Hls.EXT_X_KEY
                 throw new InvalidOperationException(
                     "The URI attribute of EXT-X-KEY is REQUIRED for the AES-128 METHOD.");
             }
-            result.Uri = new System.Uri((string)tmp, UriKind.RelativeOrAbsolute);
+            result.Uri = new Uri((string)tmp, UriKind.RelativeOrAbsolute);
             if (values.TryGetValue(@"IV", out tmp))
             {
                 result.IV = (byte[])tmp;

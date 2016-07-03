@@ -272,7 +272,7 @@ namespace Hls
         {
             if (Result.PlaylistType == PlaylistType.Media)
             {
-                mediaSegment.Uri = new System.Uri(uri.Text, UriKind.RelativeOrAbsolute);
+                mediaSegment.Uri = new Uri(uri.Text, UriKind.RelativeOrAbsolute);
             }
             return false;
         }

@@ -29,7 +29,7 @@ namespace Hls
 
         public string Subtitles { get; set; }
 
-        public System.Uri Uri { get; set; }
+        public Uri Uri { get; set; }
 
         public string Video { get; set; }
     }

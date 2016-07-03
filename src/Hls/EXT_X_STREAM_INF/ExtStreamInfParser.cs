@@ -64,7 +64,7 @@ namespace Hls.EXT_X_STREAM_INF
             {
                 result.ClosedCaptions = (string)tmp;
             }
-            result.Uri = new System.Uri(value[3].Text, UriKind.RelativeOrAbsolute);
+            result.Uri = new Uri(value[3].Text, UriKind.RelativeOrAbsolute);
             return result;
         }
     }

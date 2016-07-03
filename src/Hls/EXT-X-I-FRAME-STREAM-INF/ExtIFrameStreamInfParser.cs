@@ -34,7 +34,7 @@ namespace Hls.EXT_X_I_FRAME_STREAM_INF
                 throw new InvalidOperationException(
                     "Every EXT-X-I-FRAME-STREAM-INF tag MUST include the URI attribute.");
             }
-            result.Uri = new System.Uri((string)tmp, UriKind.RelativeOrAbsolute);
+            result.Uri = new Uri((string)tmp, UriKind.RelativeOrAbsolute);
             if (values.TryGetValue(@"AVERAGE-BANDWIDTH", out tmp))
             {
                 result.AverageBandwidth = (int)tmp;

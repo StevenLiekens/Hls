@@ -124,7 +124,7 @@ namespace Hls.EXT_X_MEDIA
                     throw new InvalidOperationException(
                         @"If the TYPE is CLOSED-CAPTIONS, the URI attribute MUST NOT be present.");
                 }
-                rendition.Uri = new System.Uri((string)tmp, UriKind.RelativeOrAbsolute);
+                rendition.Uri = new Uri((string)tmp, UriKind.RelativeOrAbsolute);
             }
             if (!values.TryGetValue(@"GROUP-ID", out tmp))
             {
