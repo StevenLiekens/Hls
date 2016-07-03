@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hls.playlist;
-using JetBrains.Annotations;
 using SimpleInjector;
 using Txt.ABNF;
 using Txt.Core;
@@ -14,23 +13,16 @@ namespace Hls
     {
         private readonly ILexer<Playlist> playlistLexer;
 
-        private readonly PlaylistWalker walker;
-
-        public Hls(ILexer<Playlist> playlistLexer, [NotNull] PlaylistWalker walker)
+        public Hls(ILexer<Playlist> playlistLexer)
         {
             if (playlistLexer == null)
             {
                 throw new ArgumentNullException(nameof(playlistLexer));
             }
-            if (walker == null)
-            {
-                throw new ArgumentNullException(nameof(walker));
-            }
             this.playlistLexer = playlistLexer;
-            this.walker = walker;
         }
 
-        public static Hls CreateDefault()
+        public static Container GetContainer()
         {
             var container = new Container();
             var registrations = new List<Registration>();
@@ -53,11 +45,10 @@ namespace Hls
                 }
             }
             container.Register<PlaylistWalker>();
-            container.Verify();
-            return container.GetInstance<Hls>();
+            return container;
         }
 
-        public PlaylistFile Parse(string text)
+        public PlaylistFile Parse(string text, PlaylistWalker walker)
         {
             if (text == null)
             {
