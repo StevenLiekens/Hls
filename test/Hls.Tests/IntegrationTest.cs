@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using SimpleInjector;
+using Txt.ABNF;
+using UriSyntax;
 using Xunit;
+using Registration = Txt.Core.Registration;
 
 namespace Hls.Tests
 {
@@ -20,8 +25,21 @@ https://priv.example.com/fileSequence2681.ts
 #EXTINF:7.975,
 https://priv.example.com/fileSequence2682.ts
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Equal(3, result.Version);
             Assert.Equal(TimeSpan.FromSeconds(8), result.TargetDuration);
@@ -63,8 +81,21 @@ http://example.com/hi.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5""
 http://example.com/audio-only.m3u8
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Collection(
                 result.VariantStreams,
@@ -136,8 +167,21 @@ hi/video-only.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5"",AUDIO=""aac""
 main/english-audio.m3u8
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Collection(
                 result.VariantStreams,
@@ -324,8 +368,21 @@ mid/main/audio-video.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=7680000,CODECS=""..."",VIDEO=""hi""
 hi/main/audio-video.m3u8
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Collection(
                 result.VariantStreams,
@@ -446,8 +503,21 @@ hi/audio-video.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5""
 audio-only.m3u8
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Collection(
                 result.VariantStreams,
@@ -557,8 +627,21 @@ http://media.example.com/fileSequence52-C.ts
 #EXTINF:15.0,
 http://media.example.com/fileSequence53-A.ts
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Equal(3, result.Version);
             Assert.Equal(TimeSpan.FromSeconds(15), result.TargetDuration);
@@ -635,8 +718,21 @@ http://media.example.com/second.ts
 http://media.example.com/third.ts
 #EXT-X-ENDLIST
 ";
-            var container = Hls.GetContainer();
-            var parser = container.GetInstance<Hls>();
+            var container = new Container();
+            var registrations = new List<Registration>();
+            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
+            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
+            foreach (var registration in registrations)
+            {
+                if (registration.Implementation != null)
+                    container.RegisterSingleton(registration.Service, registration.Implementation);
+                else if (registration.Instance != null)
+                    container.RegisterSingleton(registration.Service, registration.Instance);
+                else if (registration.Factory != null)
+                    container.RegisterSingleton(registration.Service, registration.Factory);
+            }
+            var parser = container.GetInstance<HlsParser>();
             var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
             Assert.Equal(TimeSpan.FromSeconds(10), result.TargetDuration);
             Assert.Collection(

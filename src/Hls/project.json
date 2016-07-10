@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "Uri": "1.0.0-*",
-    "Txt": "2.0.0-*",
-    "SimpleInjector": "3.2.0"
+    "Txt": "2.0.0-*"
   }
 }
