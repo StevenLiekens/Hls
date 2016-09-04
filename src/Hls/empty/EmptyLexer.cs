@@ -7,21 +7,18 @@ namespace Hls.empty
     {
         protected override IReadResult<Empty> ReadImpl(ITextScanner scanner, ITextContext context)
         {
-            var peek = scanner.Peek();
-            if (peek == -1)
+            var next = scanner.Peek();
+            if (next == -1)
             {
-                return new ReadResult<Empty>(new Empty(new Terminal("", context)));
+                return ReadResult<Empty>.Success(new Empty(new Terminal("", context)));
             }
-            var c = (char)peek;
-            if (c == '\r')
+            var c = (char)next;
+            if ((c == '\r') || (c == '\n'))
             {
-                return new ReadResult<Empty>(new Empty(new Terminal("", context)));
+                return ReadResult<Empty>.Success(new Empty(new Terminal("", context)));
             }
-            if (c == '\n')
-            {
-                return new ReadResult<Empty>(new Empty(new Terminal("", context)));
-            }
-            return new ReadResult<Empty>(new SyntaxError(false, "", char.ToString(c), context));
+            var syntaxError = new SyntaxError(context, "Unexpected character");
+            return ReadResult<Empty>.Fail(syntaxError);
         }
     }
 }

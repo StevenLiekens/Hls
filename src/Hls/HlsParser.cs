@@ -33,7 +33,7 @@ namespace Hls
             {
                 result = playlistLexer.Read(scanner);
             }
-            if (!result.Success)
+            if (!result.IsSuccess)
             {
                 throw new InvalidOperationException();
             }

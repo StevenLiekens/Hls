@@ -9,9 +9,10 @@ namespace Hls.EOF
             var peek = scanner.Peek();
             if (peek == -1)
             {
-                return new ReadResult<EndOfFile>(new EndOfFile(context));
+                return ReadResult<EndOfFile>.Success(new EndOfFile(context));
             }
-            return new ReadResult<EndOfFile>(new SyntaxError(false, "", char.ToString((char)peek), context));
+            var syntaxError = new SyntaxError(context, "Unexpected character");
+            return ReadResult<EndOfFile>.Fail(syntaxError);
         }
     }
 }
