@@ -13,7 +13,8 @@ namespace Hls.EXT_X_MEDIA
             using (var sc = new TextScanner(s))
             {
                 var lexer = Container.GetInstance<ILexer<ExtMedia>>();
-                 var readResult = lexer.Read(sc);
+                var result = lexer.Read(sc);
+                Assert.Equal(value, result.Text);
             }
         }
     }

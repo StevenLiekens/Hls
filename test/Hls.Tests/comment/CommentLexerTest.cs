@@ -44,10 +44,8 @@ namespace Hls.comment
                 using (var scanner = new TextScanner(ts))
                 {
                     var lexer = container.GetInstance<ILexer<Comment>>();
-                    var readResult = lexer.Read(scanner);
-                    Assert.NotNull(readResult);
-                    Assert.True(readResult.IsSuccess);
-                    Assert.Equal(value, readResult.Element.Text);
+                    var result = lexer.Read(scanner);
+                    Assert.Equal(value, result.Text);
                 }
             }
         }

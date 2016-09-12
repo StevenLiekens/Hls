@@ -1,5 +1,4 @@
 ﻿using System;
-using Hls.EOF;
 using Hls.EOL;
 using Hls.EXTM3U;
 using Hls.line;
@@ -11,8 +10,6 @@ namespace Hls.playlist
     public class PlaylistLexerFactory : ILexerFactory<Playlist>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
-
-        private readonly ILexer<EndOfFile> endOfFileLexer;
 
         private readonly ILexer<EndOfLine> endOfLineLexer;
 
@@ -27,8 +24,7 @@ namespace Hls.playlist
             ILexer<ExtM3u> extM3ULexer,
             ILexer<EndOfLine> endOfLineLexer,
             IRepetitionLexerFactory repetitionLexerFactory,
-            ILexer<Line> entryLexer,
-            ILexer<EndOfFile> endOfFileLexer)
+            ILexer<Line> entryLexer)
         {
             if (concatenationLexerFactory == null)
             {
@@ -50,16 +46,11 @@ namespace Hls.playlist
             {
                 throw new ArgumentNullException(nameof(entryLexer));
             }
-            if (endOfFileLexer == null)
-            {
-                throw new ArgumentNullException(nameof(endOfFileLexer));
-            }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.extM3ULexer = extM3ULexer;
             this.endOfLineLexer = endOfLineLexer;
             this.repetitionLexerFactory = repetitionLexerFactory;
             this.entryLexer = entryLexer;
-            this.endOfFileLexer = endOfFileLexer;
         }
 
         public ILexer<Playlist> Create()
@@ -69,8 +60,7 @@ namespace Hls.playlist
                     concatenationLexerFactory.Create(
                         extM3ULexer,
                         endOfLineLexer,
-                        repetitionLexerFactory.Create(entryLexer, 0, int.MaxValue),
-                        endOfFileLexer));
+                        repetitionLexerFactory.Create(entryLexer, 0, int.MaxValue)));
         }
     }
 }

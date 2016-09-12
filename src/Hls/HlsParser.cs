@@ -27,17 +27,17 @@ namespace Hls
             {
                 throw new ArgumentException("Argument is an empty string.", text);
             }
-            IReadResult<Playlist> result;
+            Playlist result;
             using (var src = new StringTextSource(text))
             using (var scanner = new TextScanner(src))
             {
                 result = playlistLexer.Read(scanner);
             }
-            if (!result.IsSuccess)
+            if (result == null)
             {
                 throw new InvalidOperationException();
             }
-            result.Element.Walk(walker);
+            result.Walk(walker);
             return walker.Result;
         }
     }
