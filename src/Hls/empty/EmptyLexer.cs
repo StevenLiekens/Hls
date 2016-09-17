@@ -6,12 +6,11 @@ namespace Hls.empty
 {
     public sealed class EmptyLexer : Lexer<Empty>
     {
-        public override IEnumerable<Empty> Read2Impl(ITextScanner scanner, ITextContext context)
+        protected override IEnumerable<Empty> ReadImpl(ITextScanner scanner, ITextContext context)
         {
             var next = scanner.Peek();
             if (next == -1)
             {
-                return Empty;
                 return new[] { new Empty(new Terminal("", context)) };
             }
             var c = (char)next;
