@@ -6,21 +6,30 @@ using Txt.Core;
 
 namespace Hls.attribute
 {
-    public class AttributeLexerFactory : ILexerFactory<Attribute>
+    public class AttributeLexerFactory : LexerFactory<Attribute>
     {
-        private readonly ILexer<AttributeName> attributeNameLexer;
+        private readonly ILexerFactory<AttributeName> attributeNameLexerFactory;
 
-        private readonly ILexer<AttributeValue> attributeValueLexer;
+        private readonly ILexerFactory<AttributeValue> attributeValueLexerFactory;
 
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
 
+        static AttributeLexerFactory()
+        {
+            Default = new AttributeLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                AttributeNameLexerFactory.Default.Singleton(),
+                AttributeValueLexerFactory.Default.Singleton());
+        }
+
         public AttributeLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
-            ILexer<AttributeName> attributeNameLexer,
-            ILexer<AttributeValue> attributeValueLexer)
+            ILexerFactory<AttributeName> attributeNameLexerFactory,
+            ILexerFactory<AttributeValue> attributeValueLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -30,28 +39,30 @@ namespace Hls.attribute
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
-            if (attributeNameLexer == null)
+            if (attributeNameLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(attributeNameLexer));
+                throw new ArgumentNullException(nameof(attributeNameLexerFactory));
             }
-            if (attributeValueLexer == null)
+            if (attributeValueLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(attributeValueLexer));
+                throw new ArgumentNullException(nameof(attributeValueLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
-            this.attributeNameLexer = attributeNameLexer;
-            this.attributeValueLexer = attributeValueLexer;
+            this.attributeNameLexerFactory = attributeNameLexerFactory;
+            this.attributeValueLexerFactory = attributeValueLexerFactory;
         }
 
-        public ILexer<Attribute> Create()
+        public static AttributeLexerFactory Default { get; }
+
+        public override ILexer<Attribute> Create()
         {
             return
                 new AttributeLexer(
                     concatenationLexerFactory.Create(
-                        attributeNameLexer,
+                        attributeNameLexerFactory.Create(),
                         terminalLexerFactory.Create("=", StringComparer.Ordinal),
-                        attributeValueLexer));
+                        attributeValueLexerFactory.Create()));
         }
     }
 }

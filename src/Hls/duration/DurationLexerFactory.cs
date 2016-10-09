@@ -6,13 +6,21 @@ using Txt.ABNF;
 
 namespace Hls.duration
 {
-    public class DurationLexerFactory : ILexerFactory<Duration>
+    public class DurationLexerFactory : LexerFactory<Duration>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
         private readonly ILexerFactory<DecimalFloatingPoint> decimalFloatingPointLexerFactory;
 
         private readonly ILexerFactory<DecimalInteger> decimalIntegerLexerFactory;
+
+        static DurationLexerFactory()
+        {
+            Default = new DurationLexerFactory(
+                AlternationLexerFactory.Default,
+                DecimalFloatingPointLexerFactory.Default.Singleton(),
+                DecimalIntegerLexerFactory.Default.Singleton());
+        }
 
         public DurationLexerFactory(
             IAlternationLexerFactory alternationLexerFactory,
@@ -36,7 +44,9 @@ namespace Hls.duration
             this.decimalIntegerLexerFactory = decimalIntegerLexerFactory;
         }
 
-        public ILexer<Duration> Create()
+        public static DurationLexerFactory Default { get; }
+
+        public override ILexer<Duration> Create()
         {
             return
                 new DurationLexer(

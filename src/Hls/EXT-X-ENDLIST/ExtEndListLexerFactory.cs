@@ -4,9 +4,14 @@ using Txt.Core;
 
 namespace Hls.EXT_X_ENDLIST
 {
-    public class ExtEndListLexerFactory : ILexerFactory<ExtEndList>
+    public class ExtEndListLexerFactory : LexerFactory<ExtEndList>
     {
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static ExtEndListLexerFactory()
+        {
+            Default = new ExtEndListLexerFactory(TerminalLexerFactory.Default);
+        }
 
         public ExtEndListLexerFactory(ITerminalLexerFactory terminalLexerFactory)
         {
@@ -17,7 +22,9 @@ namespace Hls.EXT_X_ENDLIST
             this.terminalLexerFactory = terminalLexerFactory;
         }
 
-        public ILexer<ExtEndList> Create()
+        public static ExtEndListLexerFactory Default { get; }
+
+        public override ILexer<ExtEndList> Create()
         {
             return new ExtEndListLexer(terminalLexerFactory.Create("#EXT-X-ENDLIST", StringComparer.Ordinal));
         }

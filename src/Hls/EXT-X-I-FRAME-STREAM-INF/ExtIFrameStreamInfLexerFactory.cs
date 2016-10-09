@@ -5,18 +5,26 @@ using Txt.Core;
 
 namespace Hls.EXT_X_I_FRAME_STREAM_INF
 {
-    public class ExtIFrameStreamInfLexerFactory : ILexerFactory<ExtIFrameStreamInf>
+    public class ExtIFrameStreamInfLexerFactory : LexerFactory<ExtIFrameStreamInf>
     {
-        private readonly ILexer<AttributeList> attributeListLexer;
+        private readonly ILexerFactory<AttributeList> attributeListLexerFactory;
 
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
 
+        static ExtIFrameStreamInfLexerFactory()
+        {
+            Default = new ExtIFrameStreamInfLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                AttributeListLexerFactory.Default.Singleton());
+        }
+
         public ExtIFrameStreamInfLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
-            ILexer<AttributeList> attributeListLexer)
+            ILexerFactory<AttributeList> attributeListLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -26,22 +34,24 @@ namespace Hls.EXT_X_I_FRAME_STREAM_INF
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
-            if (attributeListLexer == null)
+            if (attributeListLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(attributeListLexer));
+                throw new ArgumentNullException(nameof(attributeListLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
-            this.attributeListLexer = attributeListLexer;
+            this.attributeListLexerFactory = attributeListLexerFactory;
         }
 
-        public ILexer<ExtIFrameStreamInf> Create()
+        public static ExtIFrameStreamInfLexerFactory Default { get; }
+
+        public override ILexer<ExtIFrameStreamInf> Create()
         {
             return
                 new ExtIFrameStreamInfLexer(
                     concatenationLexerFactory.Create(
                         terminalLexerFactory.Create("#EXT-X-I-FRAME-STREAM-INF:", StringComparer.Ordinal),
-                        attributeListLexer));
+                        attributeListLexerFactory.Create()));
         }
     }
 }

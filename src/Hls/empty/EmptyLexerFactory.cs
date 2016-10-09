@@ -2,9 +2,11 @@
 
 namespace Hls.empty
 {
-    public class EmptyLexerFactory : ILexerFactory<Empty>
+    public class EmptyLexerFactory : LexerFactory<Empty>
     {
-        public ILexer<Empty> Create()
+        public static EmptyLexerFactory Default { get; } = new EmptyLexerFactory();
+
+        public override ILexer<Empty> Create()
         {
             return new EmptyLexer();
         }

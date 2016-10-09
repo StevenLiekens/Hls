@@ -5,13 +5,21 @@ using Txt.ABNF;
 
 namespace Hls.decimal_resolution
 {
-    public class DecimalResolutionLexerFactory : ILexerFactory<DecimalResolution>
+    public class DecimalResolutionLexerFactory : LexerFactory<DecimalResolution>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
         private readonly ILexerFactory<DecimalInteger> decimalIntegerLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static DecimalResolutionLexerFactory()
+        {
+            Default = new DecimalResolutionLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DecimalIntegerLexerFactory.Default.Singleton());
+        }
 
         public DecimalResolutionLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -35,7 +43,9 @@ namespace Hls.decimal_resolution
             this.decimalIntegerLexerFactory = decimalIntegerLexerFactory;
         }
 
-        public ILexer<DecimalResolution> Create()
+        public static DecimalResolutionLexerFactory Default { get; }
+
+        public override ILexer<DecimalResolution> Create()
         {
             var decimalInteger = decimalIntegerLexerFactory.Create();
             var x = terminalLexerFactory.Create("x", StringComparer.Ordinal);

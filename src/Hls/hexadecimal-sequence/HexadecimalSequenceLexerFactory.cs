@@ -5,7 +5,7 @@ using Txt.ABNF.Core.HEXDIG;
 
 namespace Hls.hexadecimal_sequence
 {
-    public class HexadecimalSequenceLexerFactory : ILexerFactory<HexadecimalSequence>
+    public class HexadecimalSequenceLexerFactory : LexerFactory<HexadecimalSequence>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
@@ -14,6 +14,15 @@ namespace Hls.hexadecimal_sequence
         private readonly IRepetitionLexerFactory repetitionLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static HexadecimalSequenceLexerFactory()
+        {
+            Default = new HexadecimalSequenceLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                RepetitionLexerFactory.Default,
+                HexadecimalDigitLexerFactory.Default.Singleton());
+        }
 
         public HexadecimalSequenceLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -43,7 +52,9 @@ namespace Hls.hexadecimal_sequence
             this.hexadecimalDigitLexerFactory = hexadecimalDigitLexerFactory;
         }
 
-        public ILexer<HexadecimalSequence> Create()
+        public static HexadecimalSequenceLexerFactory Default { get; }
+
+        public override ILexer<HexadecimalSequence> Create()
         {
             return
                 new HexadecimalSequenceLexer(

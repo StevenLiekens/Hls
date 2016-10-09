@@ -5,13 +5,21 @@ using Txt.Core;
 
 namespace Hls.enumerated_string
 {
-    public class EnumeratedStringLexerFactory : ILexerFactory<EnumeratedString>
+    public class EnumeratedStringLexerFactory : LexerFactory<EnumeratedString>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
         private readonly IRepetitionLexerFactory repetitionLexerFactory;
 
         private readonly IValueRangeLexerFactory valueRangeLexerFactory;
+
+        static EnumeratedStringLexerFactory()
+        {
+            Default = new EnumeratedStringLexerFactory(
+                RepetitionLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                ValueRangeLexerFactory.Default);
+        }
 
         public EnumeratedStringLexerFactory(
             IRepetitionLexerFactory repetitionLexerFactory,
@@ -35,7 +43,9 @@ namespace Hls.enumerated_string
             this.valueRangeLexerFactory = valueRangeLexerFactory;
         }
 
-        public ILexer<EnumeratedString> Create()
+        public static EnumeratedStringLexerFactory Default { get; }
+
+        public override ILexer<EnumeratedString> Create()
         {
             return
                 new EnumeratedStringLexer(

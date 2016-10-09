@@ -14,114 +14,132 @@ using Txt.Core;
 
 namespace Hls.tag
 {
-    public class TagLexerFactory : ILexerFactory<Tag>
+    public class TagLexerFactory : LexerFactory<Tag>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
-        private readonly ILexer<ExtEndList> extEndListLexer;
+        private readonly ILexerFactory<ExtEndList> extEndListLexerFactory;
 
-        private readonly ILexer<ExtIFrameStreamInf> extIFrameStreamInfLexer;
+        private readonly ILexerFactory<ExtIFrameStreamInf> extIFrameStreamInfLexerFactory;
 
-        private readonly ILexer<ExtInf> extInfLexer;
+        private readonly ILexerFactory<ExtInf> extInfLexerFactory;
 
-        private readonly ILexer<ExtKey> extKeyLexer;
+        private readonly ILexerFactory<ExtKey> extKeyLexerFactory;
 
-        private readonly ILexer<ExtMedia> extMediaLexer;
+        private readonly ILexerFactory<ExtMedia> extMediaLexerFactory;
 
-        private readonly ILexer<ExtMediaSequence> extMediaSequenceLexer;
+        private readonly ILexerFactory<ExtMediaSequence> extMediaSequenceLexerFactory;
 
-        private readonly ILexer<ExtStreamInf> extStreamInfLexer;
+        private readonly ILexerFactory<ExtStreamInf> extStreamInfLexerFactory;
 
-        private readonly ILexer<ExtTargetDuration> extTargetDurationLexer;
+        private readonly ILexerFactory<ExtTargetDuration> extTargetDurationLexerFactory;
 
-        private readonly ILexer<ExtVersion> extVersionLexer;
+        private readonly ILexerFactory<ExtVersion> extVersionLexerFactory;
 
-        private readonly ILexer<IgnoredTag> ignoredTagLexer;
+        private readonly ILexerFactory<IgnoredTag> ignoredTagLexerFactory;
+
+        static TagLexerFactory()
+        {
+            Default = new TagLexerFactory(
+                AlternationLexerFactory.Default,
+                ExtVersionLexerFactory.Default.Singleton(),
+                ExtInfLexerFactory.Default.Singleton(),
+                ExtTargetDurationLexerFactory.Default.Singleton(),
+                ExtStreamInfLexerFactory.Default.Singleton(),
+                ExtMediaSequenceLexerFactory.Default.Singleton(),
+                IgnoredTagLexerFactory.Default.Singleton(),
+                ExtEndListLexerFactory.Default.Singleton(),
+                ExtMediaLexerFactory.Default.Singleton(),
+                ExtIFrameStreamInfLexerFactory.Default.Singleton(),
+                ExtKeyLexerFactory.Default.Singleton());
+        }
 
         public TagLexerFactory(
             IAlternationLexerFactory alternationLexerFactory,
-            ILexer<ExtVersion> extVersionLexer,
-            ILexer<ExtInf> extInfLexer,
-            ILexer<ExtTargetDuration> extTargetDurationLexer,
-            ILexer<ExtStreamInf> extStreamInfLexer,
-            ILexer<ExtMediaSequence> extMediaSequenceLexer,
-            ILexer<IgnoredTag> ignoredTagLexer,
-            ILexer<ExtEndList> extEndListLexer,
-            ILexer<ExtMedia> extMediaLexer,
-            ILexer<ExtIFrameStreamInf> extIFrameStreamInfLexer,
-            ILexer<ExtKey> extKeyLexer)
+            ILexerFactory<ExtVersion> extVersionLexerFactory,
+            ILexerFactory<ExtInf> extInfLexerFactory,
+            ILexerFactory<ExtTargetDuration> extTargetDurationLexerFactory,
+            ILexerFactory<ExtStreamInf> extStreamInfLexerFactory,
+            ILexerFactory<ExtMediaSequence> extMediaSequenceLexerFactory,
+            ILexerFactory<IgnoredTag> ignoredTagLexerFactory,
+            ILexerFactory<ExtEndList> extEndListLexerFactory,
+            ILexerFactory<ExtMedia> extMediaLexerFactory,
+            ILexerFactory<ExtIFrameStreamInf> extIFrameStreamInfLexerFactory,
+            ILexerFactory<ExtKey> extKeyLexerFactory)
         {
             if (alternationLexerFactory == null)
             {
                 throw new ArgumentNullException(nameof(alternationLexerFactory));
             }
-            if (extVersionLexer == null)
+            if (extVersionLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extVersionLexer));
+                throw new ArgumentNullException(nameof(extVersionLexerFactory));
             }
-            if (extInfLexer == null)
+            if (extInfLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extInfLexer));
+                throw new ArgumentNullException(nameof(extInfLexerFactory));
             }
-            if (extTargetDurationLexer == null)
+            if (extTargetDurationLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extTargetDurationLexer));
+                throw new ArgumentNullException(nameof(extTargetDurationLexerFactory));
             }
-            if (extStreamInfLexer == null)
+            if (extStreamInfLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extStreamInfLexer));
+                throw new ArgumentNullException(nameof(extStreamInfLexerFactory));
             }
-            if (extMediaSequenceLexer == null)
+            if (extMediaSequenceLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extMediaSequenceLexer));
+                throw new ArgumentNullException(nameof(extMediaSequenceLexerFactory));
             }
-            if (ignoredTagLexer == null)
+            if (ignoredTagLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(ignoredTagLexer));
+                throw new ArgumentNullException(nameof(ignoredTagLexerFactory));
             }
-            if (extEndListLexer == null)
+            if (extEndListLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extEndListLexer));
+                throw new ArgumentNullException(nameof(extEndListLexerFactory));
             }
-            if (extMediaLexer == null)
+            if (extMediaLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extMediaLexer));
+                throw new ArgumentNullException(nameof(extMediaLexerFactory));
             }
-            if (extIFrameStreamInfLexer == null)
+            if (extIFrameStreamInfLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extIFrameStreamInfLexer));
+                throw new ArgumentNullException(nameof(extIFrameStreamInfLexerFactory));
             }
-            if (extKeyLexer == null)
+            if (extKeyLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(extKeyLexer));
+                throw new ArgumentNullException(nameof(extKeyLexerFactory));
             }
             this.alternationLexerFactory = alternationLexerFactory;
-            this.extVersionLexer = extVersionLexer;
-            this.extInfLexer = extInfLexer;
-            this.extTargetDurationLexer = extTargetDurationLexer;
-            this.extStreamInfLexer = extStreamInfLexer;
-            this.extMediaSequenceLexer = extMediaSequenceLexer;
-            this.ignoredTagLexer = ignoredTagLexer;
-            this.extEndListLexer = extEndListLexer;
-            this.extMediaLexer = extMediaLexer;
-            this.extIFrameStreamInfLexer = extIFrameStreamInfLexer;
-            this.extKeyLexer = extKeyLexer;
+            this.extVersionLexerFactory = extVersionLexerFactory;
+            this.extInfLexerFactory = extInfLexerFactory;
+            this.extTargetDurationLexerFactory = extTargetDurationLexerFactory;
+            this.extStreamInfLexerFactory = extStreamInfLexerFactory;
+            this.extMediaSequenceLexerFactory = extMediaSequenceLexerFactory;
+            this.ignoredTagLexerFactory = ignoredTagLexerFactory;
+            this.extEndListLexerFactory = extEndListLexerFactory;
+            this.extMediaLexerFactory = extMediaLexerFactory;
+            this.extIFrameStreamInfLexerFactory = extIFrameStreamInfLexerFactory;
+            this.extKeyLexerFactory = extKeyLexerFactory;
         }
 
-        public ILexer<Tag> Create()
+        public static TagLexerFactory Default { get; }
+
+        public override ILexer<Tag> Create()
         {
             return new TagLexer(
                 alternationLexerFactory.Create(
-                    extVersionLexer,
-                    extKeyLexer,
-                    extInfLexer,
-                    extTargetDurationLexer,
-                    extStreamInfLexer,
-                    extIFrameStreamInfLexer,
-                    extMediaSequenceLexer,
-                    extEndListLexer,
-                    extMediaLexer,
-                    ignoredTagLexer));
+                    extVersionLexerFactory.Create(),
+                    extKeyLexerFactory.Create(),
+                    extInfLexerFactory.Create(),
+                    extTargetDurationLexerFactory.Create(),
+                    extStreamInfLexerFactory.Create(),
+                    extIFrameStreamInfLexerFactory.Create(),
+                    extMediaSequenceLexerFactory.Create(),
+                    extEndListLexerFactory.Create(),
+                    extMediaLexerFactory.Create(),
+                    ignoredTagLexerFactory.Create()));
         }
     }
 }

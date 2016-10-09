@@ -6,7 +6,7 @@ using Txt.ABNF.Core.WSP;
 
 namespace Hls.title
 {
-    public class TitleLexerFactory : ILexerFactory<Title>
+    public class TitleLexerFactory : LexerFactory<Title>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
@@ -15,6 +15,15 @@ namespace Hls.title
         private readonly ILexerFactory<VisibleCharacter> visibleCharacterLexerFactory;
 
         private readonly ILexerFactory<WhiteSpace> whiteSpaceLexerFactory;
+
+        static TitleLexerFactory()
+        {
+            Default = new TitleLexerFactory(
+                RepetitionLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                VisibleCharacterLexerFactory.Default.Singleton(),
+                WhiteSpaceLexerFactory.Default.Singleton());
+        }
 
         public TitleLexerFactory(
             IRepetitionLexerFactory repetitionLexerFactory,
@@ -44,7 +53,9 @@ namespace Hls.title
             this.whiteSpaceLexerFactory = whiteSpaceLexerFactory;
         }
 
-        public ILexer<Title> Create()
+        public static TitleLexerFactory Default { get; }
+
+        public override ILexer<Title> Create()
         {
             return
                 new TitleLexer(

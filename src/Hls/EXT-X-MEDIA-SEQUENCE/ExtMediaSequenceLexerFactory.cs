@@ -5,13 +5,21 @@ using Txt.ABNF;
 
 namespace Hls.EXT_X_MEDIA_SEQUENCE
 {
-    public class ExtMediaSequenceLexerFactory : ILexerFactory<ExtMediaSequence>
+    public class ExtMediaSequenceLexerFactory : LexerFactory<ExtMediaSequence>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
         private readonly ILexerFactory<DecimalInteger> decimalIntegerLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static ExtMediaSequenceLexerFactory()
+        {
+            Default = new ExtMediaSequenceLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DecimalIntegerLexerFactory.Default.Singleton());
+        }
 
         public ExtMediaSequenceLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -35,7 +43,9 @@ namespace Hls.EXT_X_MEDIA_SEQUENCE
             this.decimalIntegerLexerFactory = decimalIntegerLexerFactory;
         }
 
-        public ILexer<ExtMediaSequence> Create()
+        public static ExtMediaSequenceLexerFactory Default { get; }
+
+        public override ILexer<ExtMediaSequence> Create()
         {
             return
                 new ExtMediaSequenceLexer(

@@ -5,7 +5,7 @@ using Txt.ABNF.Core.DIGIT;
 
 namespace Hls.decimal_floating_point
 {
-    public class DecimalFloatingPointLexerFactory : ILexerFactory<DecimalFloatingPoint>
+    public class DecimalFloatingPointLexerFactory : LexerFactory<DecimalFloatingPoint>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
@@ -14,6 +14,15 @@ namespace Hls.decimal_floating_point
         private readonly IRepetitionLexerFactory repetitionLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static DecimalFloatingPointLexerFactory()
+        {
+            Default = new DecimalFloatingPointLexerFactory(
+                ConcatenationLexerFactory.Default,
+                RepetitionLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DigitLexerFactory.Default.Singleton());
+        }
 
         public DecimalFloatingPointLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -43,7 +52,9 @@ namespace Hls.decimal_floating_point
             this.digitLexerFactory = digitLexerFactory;
         }
 
-        public ILexer<DecimalFloatingPoint> Create()
+        public static DecimalFloatingPointLexerFactory Default { get; }
+
+        public override ILexer<DecimalFloatingPoint> Create()
         {
             var digit = digitLexerFactory.Create();
             var separator = terminalLexerFactory.Create(".", StringComparer.Ordinal);

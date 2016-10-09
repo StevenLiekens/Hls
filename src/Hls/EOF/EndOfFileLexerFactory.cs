@@ -2,9 +2,11 @@
 
 namespace Hls.EOF
 {
-    public class EndOfFileLexerFactory : ILexerFactory<EndOfFile>
+    public class EndOfFileLexerFactory : LexerFactory<EndOfFile>
     {
-        public ILexer<EndOfFile> Create()
+        public static EndOfFileLexerFactory Default { get; } = new EndOfFileLexerFactory();
+
+        public override ILexer<EndOfFile> Create()
         {
             return new EndOfFileLexer();
         }

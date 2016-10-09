@@ -5,18 +5,26 @@ using Txt.Core;
 
 namespace Hls.EXT_X_MEDIA
 {
-    public class ExtMediaLexerFactory : ILexerFactory<ExtMedia>
+    public class ExtMediaLexerFactory : LexerFactory<ExtMedia>
     {
-        private readonly ILexer<AttributeList> attributeListLexer;
+        private readonly ILexerFactory<AttributeList> attributeListLexerFactory;
 
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
 
+        static ExtMediaLexerFactory()
+        {
+            Default = new ExtMediaLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                AttributeListLexerFactory.Default.Singleton());
+        }
+
         public ExtMediaLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
-            ILexer<AttributeList> attributeListLexer)
+            ILexerFactory<AttributeList> attributeListLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -26,22 +34,24 @@ namespace Hls.EXT_X_MEDIA
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
-            if (attributeListLexer == null)
+            if (attributeListLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(attributeListLexer));
+                throw new ArgumentNullException(nameof(attributeListLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
-            this.attributeListLexer = attributeListLexer;
+            this.attributeListLexerFactory = attributeListLexerFactory;
         }
 
-        public ILexer<ExtMedia> Create()
+        public static ExtMediaLexerFactory Default { get; }
+
+        public override ILexer<ExtMedia> Create()
         {
             return
                 new ExtMediaLexer(
                     concatenationLexerFactory.Create(
                         terminalLexerFactory.Create("#EXT-X-MEDIA:", StringComparer.Ordinal),
-                        attributeListLexer));
+                        attributeListLexerFactory.Create()));
         }
     }
 }

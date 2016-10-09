@@ -5,18 +5,26 @@ using Txt.Core;
 
 namespace Hls.EXT_X_VERSION
 {
-    public class ExtVersionLexerFactory : ILexerFactory<ExtVersion>
+    public class ExtVersionLexerFactory : LexerFactory<ExtVersion>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
-        private readonly ILexer<DecimalInteger> decimalIntegerLexer;
+        private readonly ILexerFactory<DecimalInteger> decimalIntegerLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static ExtVersionLexerFactory()
+        {
+            Default = new ExtVersionLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DecimalIntegerLexerFactory.Default.Singleton());
+        }
 
         public ExtVersionLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
-            ILexer<DecimalInteger> decimalIntegerLexer)
+            ILexerFactory<DecimalInteger> decimalIntegerLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -26,22 +34,24 @@ namespace Hls.EXT_X_VERSION
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
-            if (decimalIntegerLexer == null)
+            if (decimalIntegerLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(decimalIntegerLexer));
+                throw new ArgumentNullException(nameof(decimalIntegerLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
-            this.decimalIntegerLexer = decimalIntegerLexer;
+            this.decimalIntegerLexerFactory = decimalIntegerLexerFactory;
         }
 
-        public ILexer<ExtVersion> Create()
+        public static ExtVersionLexerFactory Default { get; }
+
+        public override ILexer<ExtVersion> Create()
         {
             return
                 new ExtVersionLexer(
                     concatenationLexerFactory.Create(
                         terminalLexerFactory.Create("#EXT-X-VERSION:", StringComparer.Ordinal),
-                        decimalIntegerLexer));
+                        decimalIntegerLexerFactory.Create()));
         }
     }
 }

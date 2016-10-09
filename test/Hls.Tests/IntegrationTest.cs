@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using Hls.attribute;
+using Hls.attribute_list;
+using Hls.attribute_value;
+using Hls.EXTINF;
+using Hls.EXT_X_DISCONTINUITY_SEQUENCE;
+using Hls.EXT_X_I_FRAME_STREAM_INF;
+using Hls.EXT_X_KEY;
+using Hls.EXT_X_MEDIA;
+using Hls.EXT_X_MEDIA_SEQUENCE;
+using Hls.EXT_X_STREAM_INF;
+using Hls.EXT_X_TARGETDURATION;
+using Hls.EXT_X_VERSION;
+using Hls.playlist;
 using SimpleInjector;
 using Txt.ABNF;
-using UriSyntax;
 using Xunit;
-using Registration = Txt.Core.Registration;
 
 namespace Hls.Tests
 {
@@ -25,22 +36,19 @@ https://priv.example.com/fileSequence2681.ts
 #EXTINF:7.975,
 https://priv.example.com/fileSequence2682.ts
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Equal(3, result.Version);
             Assert.Equal(TimeSpan.FromSeconds(8), result.TargetDuration);
             Assert.Collection(
@@ -81,22 +89,18 @@ http://example.com/hi.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5""
 http://example.com/audio-only.m3u8
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Collection(
                 result.VariantStreams,
                 low =>
@@ -167,22 +171,19 @@ hi/video-only.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5"",AUDIO=""aac""
 main/english-audio.m3u8
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Collection(
                 result.VariantStreams,
                 low =>
@@ -368,22 +369,18 @@ mid/main/audio-video.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=7680000,CODECS=""..."",VIDEO=""hi""
 hi/main/audio-video.m3u8
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Collection(
                 result.VariantStreams,
                 low =>
@@ -503,22 +500,18 @@ hi/audio-video.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=65000,CODECS=""mp4a.40.5""
 audio-only.m3u8
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Collection(
                 result.VariantStreams,
                 low =>
@@ -627,22 +620,18 @@ http://media.example.com/fileSequence52-C.ts
 #EXTINF:15.0,
 http://media.example.com/fileSequence53-A.ts
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Equal(3, result.Version);
             Assert.Equal(TimeSpan.FromSeconds(15), result.TargetDuration);
             Assert.Collection(
@@ -718,22 +707,18 @@ http://media.example.com/second.ts
 http://media.example.com/third.ts
 #EXT-X-ENDLIST
 ";
-            var container = new Container();
-            var registrations = new List<Registration>();
-            registrations.AddRange(AbnfRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(UriRegistrations.GetRegistrations(container.GetInstance));
-            registrations.AddRange(HlsRegistrations.GetRegistrations(container.GetInstance));
-            foreach (var registration in registrations)
-            {
-                if (registration.Implementation != null)
-                    container.RegisterSingleton(registration.Service, registration.Implementation);
-                else if (registration.Instance != null)
-                    container.RegisterSingleton(registration.Service, registration.Instance);
-                else if (registration.Factory != null)
-                    container.RegisterSingleton(registration.Service, registration.Factory);
-            }
-            var parser = container.GetInstance<HlsParser>();
-            var result = parser.Parse(data, container.GetInstance<PlaylistWalker>());
+            var parser = new HlsParser(PlaylistLexerFactory.Default.Create());
+            var walker = new PlaylistWalker(
+                ExtVersionParserFactory.Default.Create(),
+                ExtTargetDurationParserFactory.Default.Create(),
+                ExtMediaSequenceParserFactory.Default.Create(),
+                ExtKeyParserFactory.Default.Create(),
+                ExtStreamInfParserFactory.Default.Create(),
+                ExtInfParserFactory.Default.Create(),
+                ExtIFrameStreamInfParserFactory.Default.Create(),
+                ExtDiscontinuitySequenceParserFactory.Default.Create(),
+                ExtMediaParserFactory.Default.Create());
+            var result = parser.Parse(data, walker);
             Assert.Equal(TimeSpan.FromSeconds(10), result.TargetDuration);
             Assert.Collection(
                 result.MediaSegments,

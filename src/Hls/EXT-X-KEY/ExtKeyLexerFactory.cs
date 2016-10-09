@@ -5,18 +5,26 @@ using Txt.Core;
 
 namespace Hls.EXT_X_KEY
 {
-    public class ExtKeyLexerFactory : ILexerFactory<ExtKey>
+    public class ExtKeyLexerFactory : LexerFactory<ExtKey>
     {
-        private readonly ILexer<AttributeList> attributeListLexer;
+        private readonly ILexerFactory<AttributeList> attributeListLexerFactory;
 
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
 
+        static ExtKeyLexerFactory()
+        {
+            Default = new ExtKeyLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                AttributeListLexerFactory.Default.Singleton());
+        }
+
         public ExtKeyLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
-            ILexer<AttributeList> attributeListLexer)
+            ILexerFactory<AttributeList> attributeListLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -26,22 +34,24 @@ namespace Hls.EXT_X_KEY
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
-            if (attributeListLexer == null)
+            if (attributeListLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(attributeListLexer));
+                throw new ArgumentNullException(nameof(attributeListLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
-            this.attributeListLexer = attributeListLexer;
+            this.attributeListLexerFactory = attributeListLexerFactory;
         }
 
-        public ILexer<ExtKey> Create()
+        public static ExtKeyLexerFactory Default { get; }
+
+        public override ILexer<ExtKey> Create()
         {
             return
                 new ExtKeyLexer(
                     concatenationLexerFactory.Create(
                         terminalLexerFactory.Create("#EXT-X-KEY:", StringComparer.Ordinal),
-                        attributeListLexer));
+                        attributeListLexerFactory.Create()));
         }
     }
 }

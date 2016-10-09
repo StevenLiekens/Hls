@@ -6,7 +6,7 @@ using Txt.ABNF.Core.DIGIT;
 
 namespace Hls.attribute_name
 {
-    public class AttributeNameLexerFactory : ILexerFactory<AttributeName>
+    public class AttributeNameLexerFactory : LexerFactory<AttributeName>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
@@ -17,6 +17,16 @@ namespace Hls.attribute_name
         private readonly ITerminalLexerFactory terminalLexerFactory;
 
         private readonly IValueRangeLexerFactory valueRangeLexerFactory;
+
+        static AttributeNameLexerFactory()
+        {
+            Default = new AttributeNameLexerFactory(
+                RepetitionLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                ValueRangeLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DigitLexerFactory.Default.Singleton());
+        }
 
         public AttributeNameLexerFactory(
             IRepetitionLexerFactory repetitionLexerFactory,
@@ -52,7 +62,9 @@ namespace Hls.attribute_name
             this.digitLexerFactory = digitLexerFactory;
         }
 
-        public ILexer<AttributeName> Create()
+        public static AttributeNameLexerFactory Default { get; }
+
+        public override ILexer<AttributeName> Create()
         {
             return
                 new AttributeNameLexer(

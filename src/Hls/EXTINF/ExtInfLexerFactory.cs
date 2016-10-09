@@ -6,7 +6,7 @@ using Txt.ABNF;
 
 namespace Hls.EXTINF
 {
-    public class ExtInfLexerFactory : ILexerFactory<ExtInf>
+    public class ExtInfLexerFactory : LexerFactory<ExtInf>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
@@ -18,12 +18,22 @@ namespace Hls.EXTINF
 
         private readonly ILexerFactory<Title> titleLexerFactory;
 
+        static ExtInfLexerFactory()
+        {
+            Default = new ExtInfLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                OptionLexerFactory.Default,
+                DurationLexerFactory.Default.Singleton(),
+                TitleLexerFactory.Default.Singleton());
+        }
+
         public ExtInfLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
+            IOptionLexerFactory optionLexerFactory,
             ILexerFactory<Duration> durationLexerFactory,
-            ILexerFactory<Title> titleLexerFactory,
-            IOptionLexerFactory optionLexerFactory)
+            ILexerFactory<Title> titleLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -33,6 +43,10 @@ namespace Hls.EXTINF
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
+            if (optionLexerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(optionLexerFactory));
+            }
             if (durationLexerFactory == null)
             {
                 throw new ArgumentNullException(nameof(durationLexerFactory));
@@ -41,18 +55,16 @@ namespace Hls.EXTINF
             {
                 throw new ArgumentNullException(nameof(titleLexerFactory));
             }
-            if (optionLexerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(optionLexerFactory));
-            }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
+            this.optionLexerFactory = optionLexerFactory;
             this.durationLexerFactory = durationLexerFactory;
             this.titleLexerFactory = titleLexerFactory;
-            this.optionLexerFactory = optionLexerFactory;
         }
 
-        public ILexer<ExtInf> Create()
+        public static ExtInfLexerFactory Default { get; }
+
+        public override ILexer<ExtInf> Create()
         {
             return
                 new ExtInfLexer(

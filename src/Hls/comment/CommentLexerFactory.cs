@@ -7,7 +7,7 @@ using Txt.ABNF.Core.WSP;
 
 namespace Hls.comment
 {
-    public class CommentLexerFactory : ILexerFactory<Comment>
+    public class CommentLexerFactory : LexerFactory<Comment>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
@@ -25,15 +25,28 @@ namespace Hls.comment
 
         private readonly ILexerFactory<WhiteSpace> whiteSpaceLexerFactory;
 
+        static CommentLexerFactory()
+        {
+            Default = new CommentLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                RepetitionLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                ValueRangeLexerFactory.Default,
+                OptionLexerFactory.Default,
+                VisibleCharacterLexerFactory.Default.Singleton(),
+                WhiteSpaceLexerFactory.Default.Singleton());
+        }
+
         public CommentLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
             IRepetitionLexerFactory repetitionLexerFactory,
             IAlternationLexerFactory alternationLexerFactory,
-            ILexerFactory<VisibleCharacter> visibleCharacterLexerFactory,
-            ILexerFactory<WhiteSpace> whiteSpaceLexerFactory,
             IValueRangeLexerFactory valueRangeLexerFactory,
-            IOptionLexerFactory optionLexerFactory)
+            IOptionLexerFactory optionLexerFactory,
+            ILexerFactory<VisibleCharacter> visibleCharacterLexerFactory,
+            ILexerFactory<WhiteSpace> whiteSpaceLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -51,14 +64,6 @@ namespace Hls.comment
             {
                 throw new ArgumentNullException(nameof(alternationLexerFactory));
             }
-            if (visibleCharacterLexerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(visibleCharacterLexerFactory));
-            }
-            if (whiteSpaceLexerFactory == null)
-            {
-                throw new ArgumentNullException(nameof(whiteSpaceLexerFactory));
-            }
             if (valueRangeLexerFactory == null)
             {
                 throw new ArgumentNullException(nameof(valueRangeLexerFactory));
@@ -67,17 +72,27 @@ namespace Hls.comment
             {
                 throw new ArgumentNullException(nameof(optionLexerFactory));
             }
+            if (visibleCharacterLexerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(visibleCharacterLexerFactory));
+            }
+            if (whiteSpaceLexerFactory == null)
+            {
+                throw new ArgumentNullException(nameof(whiteSpaceLexerFactory));
+            }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
             this.repetitionLexerFactory = repetitionLexerFactory;
             this.alternationLexerFactory = alternationLexerFactory;
-            this.visibleCharacterLexerFactory = visibleCharacterLexerFactory;
-            this.whiteSpaceLexerFactory = whiteSpaceLexerFactory;
             this.valueRangeLexerFactory = valueRangeLexerFactory;
             this.optionLexerFactory = optionLexerFactory;
+            this.visibleCharacterLexerFactory = visibleCharacterLexerFactory;
+            this.whiteSpaceLexerFactory = whiteSpaceLexerFactory;
         }
 
-        public ILexer<Comment> Create()
+        public static CommentLexerFactory Default { get; }
+
+        public override ILexer<Comment> Create()
         {
             var octo = terminalLexerFactory.Create("#", StringComparer.Ordinal);
             var vchar = visibleCharacterLexerFactory.Create();
@@ -106,8 +121,10 @@ namespace Hls.comment
             var beforeE = valueRangeLexerFactory.Create(0x21, 0x44, Encoding.UTF8);
             var afterE = valueRangeLexerFactory.Create(0x46, 0x7E, Encoding.UTF8);
             var notE = alternationLexerFactory.Create(beforeE, afterE, wsp);
-
-            var safetyCheck = alternationLexerFactory.Create(concatenationLexerFactory.Create(ex, notT), concatenationLexerFactory.Create(e, notX), notE);
+            var safetyCheck = alternationLexerFactory.Create(
+                concatenationLexerFactory.Create(ex, notT),
+                concatenationLexerFactory.Create(e, notX),
+                notE);
             var innerLexer = concatenationLexerFactory.Create(
                 octo,
                 optionLexerFactory.Create(concatenationLexerFactory.Create(safetyCheck, characters)));

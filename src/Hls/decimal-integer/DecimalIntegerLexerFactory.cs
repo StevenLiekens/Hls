@@ -5,11 +5,18 @@ using Txt.ABNF.Core.DIGIT;
 
 namespace Hls.decimal_integer
 {
-    public class DecimalIntegerLexerFactory : ILexerFactory<DecimalInteger>
+    public class DecimalIntegerLexerFactory : LexerFactory<DecimalInteger>
     {
         private readonly ILexerFactory<Digit> digitLexerFactory;
 
         private readonly IRepetitionLexerFactory repetitionLexerFactory;
+
+        static DecimalIntegerLexerFactory()
+        {
+            Default = new DecimalIntegerLexerFactory(
+                RepetitionLexerFactory.Default,
+                DigitLexerFactory.Default.Singleton());
+        }
 
         public DecimalIntegerLexerFactory(
             IRepetitionLexerFactory repetitionLexerFactory,
@@ -27,7 +34,9 @@ namespace Hls.decimal_integer
             this.digitLexerFactory = digitLexerFactory;
         }
 
-        public ILexer<DecimalInteger> Create()
+        public static DecimalIntegerLexerFactory Default { get; }
+
+        public override ILexer<DecimalInteger> Create()
         {
             return new DecimalIntegerLexer(repetitionLexerFactory.Create(digitLexerFactory.Create(), 1, 20));
         }

@@ -1,11 +1,12 @@
 ﻿using System;
+using Hls.attribute;
 using Txt.Core;
 using Txt.ABNF;
 using Attribute = Hls.attribute.Attribute;
 
 namespace Hls.attribute_list
 {
-    public class AttributeListLexerFactory : ILexerFactory<AttributeList>
+    public class AttributeListLexerFactory : LexerFactory<AttributeList>
     {
         private readonly ILexerFactory<Attribute> attributeLexerFactory;
 
@@ -14,6 +15,15 @@ namespace Hls.attribute_list
         private readonly IRepetitionLexerFactory repetitionLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static AttributeListLexerFactory()
+        {
+            Default = new AttributeListLexerFactory(
+                ConcatenationLexerFactory.Default,
+                RepetitionLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                AttributeLexerFactory.Default.Singleton());
+        }
 
         public AttributeListLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -27,7 +37,9 @@ namespace Hls.attribute_list
             this.attributeLexerFactory = attributeLexerFactory;
         }
 
-        public ILexer<AttributeList> Create()
+        public static AttributeListLexerFactory Default { get; }
+
+        public override ILexer<AttributeList> Create()
         {
             var attribute = attributeLexerFactory.Create();
             return

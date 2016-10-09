@@ -11,7 +11,7 @@ using Txt.ABNF;
 
 namespace Hls.attribute_value
 {
-    public class AttributeValueLexerFactory : ILexerFactory<AttributeValue>
+    public class AttributeValueLexerFactory : LexerFactory<AttributeValue>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
@@ -28,6 +28,19 @@ namespace Hls.attribute_value
         private readonly ILexerFactory<QuotedString> quotedStringLexerFactory;
 
         private readonly ILexerFactory<SignedDecimalFloatingPoint> signedDecimalFloatingPointLexerFactory;
+
+        static AttributeValueLexerFactory()
+        {
+            Default = new AttributeValueLexerFactory(
+                AlternationLexerFactory.Default,
+                DecimalIntegerLexerFactory.Default.Singleton(),
+                HexadecimalSequenceLexerFactory.Default.Singleton(),
+                DecimalFloatingPointLexerFactory.Default.Singleton(),
+                SignedDecimalFloatingPointLexerFactory.Default.Singleton(),
+                QuotedStringLexerFactory.Default.Singleton(),
+                EnumeratedStringLexerFactory.Default.Singleton(),
+                DecimalResolutionLexerFactory.Default.Singleton());
+        }
 
         public AttributeValueLexerFactory(
             IAlternationLexerFactory alternationLexerFactory,
@@ -81,7 +94,9 @@ namespace Hls.attribute_value
             this.decimalResolutionLexerFactory = decimalResolutionLexerFactory;
         }
 
-        public ILexer<AttributeValue> Create()
+        public static AttributeValueLexerFactory Default { get; }
+
+        public override ILexer<AttributeValue> Create()
         {
             return
                 new AttributeValueLexer(

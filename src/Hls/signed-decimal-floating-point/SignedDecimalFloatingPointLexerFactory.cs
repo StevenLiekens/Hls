@@ -5,7 +5,7 @@ using Txt.ABNF;
 
 namespace Hls.signed_decimal_floating_point
 {
-    public class SignedDecimalFloatingPointLexerFactory : ILexerFactory<SignedDecimalFloatingPoint>
+    public class SignedDecimalFloatingPointLexerFactory : LexerFactory<SignedDecimalFloatingPoint>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
@@ -14,6 +14,15 @@ namespace Hls.signed_decimal_floating_point
         private readonly IOptionLexerFactory optionLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static SignedDecimalFloatingPointLexerFactory()
+        {
+            Default = new SignedDecimalFloatingPointLexerFactory(
+                ConcatenationLexerFactory.Default,
+                OptionLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DecimalFloatingPointLexerFactory.Default.Singleton());
+        }
 
         public SignedDecimalFloatingPointLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -43,7 +52,9 @@ namespace Hls.signed_decimal_floating_point
             this.decimalFloatingPointLexerFactory = decimalFloatingPointLexerFactory;
         }
 
-        public ILexer<SignedDecimalFloatingPoint> Create()
+        public static SignedDecimalFloatingPointLexerFactory Default { get; }
+
+        public override ILexer<SignedDecimalFloatingPoint> Create()
         {
             return
                 new SignedDecimalFloatingPointLexer(

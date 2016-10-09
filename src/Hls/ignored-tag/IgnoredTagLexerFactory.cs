@@ -6,7 +6,7 @@ using Txt.Core;
 
 namespace Hls.ignored_tag
 {
-    public class IgnoredTagLexerFactory : ILexerFactory<IgnoredTag>
+    public class IgnoredTagLexerFactory : LexerFactory<IgnoredTag>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
@@ -16,17 +16,28 @@ namespace Hls.ignored_tag
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
 
-        private readonly ILexer<VisibleCharacter> visibleCharacterLexer;
+        private readonly ILexerFactory<VisibleCharacter> visibleCharacterLexerFactory;
 
-        private readonly ILexer<WhiteSpace> whiteSpaceLexer;
+        private readonly ILexerFactory<WhiteSpace> whiteSpaceLexerFactory;
+
+        static IgnoredTagLexerFactory()
+        {
+            Default = new IgnoredTagLexerFactory(
+                TerminalLexerFactory.Default,
+                ConcatenationLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                RepetitionLexerFactory.Default,
+                VisibleCharacterLexerFactory.Default.Singleton(),
+                WhiteSpaceLexerFactory.Default.Singleton());
+        }
 
         public IgnoredTagLexerFactory(
             ITerminalLexerFactory terminalLexerFactory,
             IConcatenationLexerFactory concatenationLexerFactory,
             IAlternationLexerFactory alternationLexerFactory,
             IRepetitionLexerFactory repetitionLexerFactory,
-            ILexer<VisibleCharacter> visibleCharacterLexer,
-            ILexer<WhiteSpace> whiteSpaceLexer)
+            ILexerFactory<VisibleCharacter> visibleCharacterLexerFactory,
+            ILexerFactory<WhiteSpace> whiteSpaceLexerFactory)
         {
             if (terminalLexerFactory == null)
             {
@@ -44,30 +55,34 @@ namespace Hls.ignored_tag
             {
                 throw new ArgumentNullException(nameof(repetitionLexerFactory));
             }
-            if (visibleCharacterLexer == null)
+            if (visibleCharacterLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(visibleCharacterLexer));
+                throw new ArgumentNullException(nameof(visibleCharacterLexerFactory));
             }
-            if (whiteSpaceLexer == null)
+            if (whiteSpaceLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(whiteSpaceLexer));
+                throw new ArgumentNullException(nameof(whiteSpaceLexerFactory));
             }
             this.terminalLexerFactory = terminalLexerFactory;
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.alternationLexerFactory = alternationLexerFactory;
             this.repetitionLexerFactory = repetitionLexerFactory;
-            this.visibleCharacterLexer = visibleCharacterLexer;
-            this.whiteSpaceLexer = whiteSpaceLexer;
+            this.visibleCharacterLexerFactory = visibleCharacterLexerFactory;
+            this.whiteSpaceLexerFactory = whiteSpaceLexerFactory;
         }
 
-        public ILexer<IgnoredTag> Create()
+        public static IgnoredTagLexerFactory Default { get; }
+
+        public override ILexer<IgnoredTag> Create()
         {
             return
                 new IgnoredTagLexer(
                     concatenationLexerFactory.Create(
                         terminalLexerFactory.Create("#EXT", StringComparer.Ordinal),
                         repetitionLexerFactory.Create(
-                            alternationLexerFactory.Create(visibleCharacterLexer, whiteSpaceLexer),
+                            alternationLexerFactory.Create(
+                                visibleCharacterLexerFactory.Create(),
+                                whiteSpaceLexerFactory.Create()),
                             0,
                             int.MaxValue)));
         }

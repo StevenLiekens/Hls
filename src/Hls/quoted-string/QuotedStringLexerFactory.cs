@@ -6,7 +6,7 @@ using Txt.ABNF.Core.DQUOTE;
 
 namespace Hls.quoted_string
 {
-    public class QuotedStringLexerFactory : ILexerFactory<QuotedString>
+    public class QuotedStringLexerFactory : LexerFactory<QuotedString>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
@@ -17,6 +17,16 @@ namespace Hls.quoted_string
         private readonly IRepetitionLexerFactory repetitionLexerFactory;
 
         private readonly IValueRangeLexerFactory valueRangeLexerFactory;
+
+        static QuotedStringLexerFactory()
+        {
+            Default = new QuotedStringLexerFactory(
+                ConcatenationLexerFactory.Default,
+                RepetitionLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                ValueRangeLexerFactory.Default,
+                DoubleQuoteLexerFactory.Default.Singleton());
+        }
 
         public QuotedStringLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
@@ -52,7 +62,9 @@ namespace Hls.quoted_string
             this.doubleQuoteLexerFactory = doubleQuoteLexerFactory;
         }
 
-        public ILexer<QuotedString> Create()
+        public static QuotedStringLexerFactory Default { get; }
+
+        public override ILexer<QuotedString> Create()
         {
             var dquote = doubleQuoteLexerFactory.Create();
             return

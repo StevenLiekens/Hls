@@ -9,30 +9,42 @@ using UriSyntax.URI_reference;
 
 namespace Hls.line
 {
-    public class LineLexerFactory : ILexerFactory<Line>
+    public class LineLexerFactory : LexerFactory<Line>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
-        private readonly ILexer<Comment> commentLexer;
+        private readonly ILexerFactory<Comment> commentLexerFactory;
 
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
-        private readonly ILexer<Empty> emptyLexer;
+        private readonly ILexerFactory<Empty> emptyLexerFactory;
 
-        private readonly ILexer<EndOfLine> endOfLineLexer;
+        private readonly ILexerFactory<EndOfLine> endOfLineLexerFactory;
 
-        private readonly ILexer<Tag> tagLexer;
+        private readonly ILexerFactory<Tag> tagLexerFactory;
 
-        private readonly ILexer<UriReference> uriReferenceLexer;
+        private readonly ILexerFactory<UriReference> uriReferenceLexerFactory;
+
+        static LineLexerFactory()
+        {
+            Default = new LineLexerFactory(
+                ConcatenationLexerFactory.Default,
+                AlternationLexerFactory.Default,
+                TagLexerFactory.Default.Singleton(),
+                CommentLexerFactory.Default.Singleton(),
+                EmptyLexerFactory.Default.Singleton(),
+                UriReferenceLexerFactory.Default.Singleton(),
+                EndOfLineLexerFactory.Default.Singleton());
+        }
 
         public LineLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             IAlternationLexerFactory alternationLexerFactory,
-            ILexer<Tag> tagLexer,
-            ILexer<Comment> commentLexer,
-            ILexer<Empty> emptyLexer,
-            ILexer<UriReference> uriReferenceLexer,
-            ILexer<EndOfLine> endOfLineLexer)
+            ILexerFactory<Tag> tagLexerFactory,
+            ILexerFactory<Comment> commentLexerFactory,
+            ILexerFactory<Empty> emptyLexerFactory,
+            ILexerFactory<UriReference> uriReferenceLexerFactory,
+            ILexerFactory<EndOfLine> endOfLineLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -42,42 +54,48 @@ namespace Hls.line
             {
                 throw new ArgumentNullException(nameof(alternationLexerFactory));
             }
-            if (tagLexer == null)
+            if (tagLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(tagLexer));
+                throw new ArgumentNullException(nameof(tagLexerFactory));
             }
-            if (commentLexer == null)
+            if (commentLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(commentLexer));
+                throw new ArgumentNullException(nameof(commentLexerFactory));
             }
-            if (emptyLexer == null)
+            if (emptyLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(emptyLexer));
+                throw new ArgumentNullException(nameof(emptyLexerFactory));
             }
-            if (uriReferenceLexer == null)
+            if (uriReferenceLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(uriReferenceLexer));
+                throw new ArgumentNullException(nameof(uriReferenceLexerFactory));
             }
-            if (endOfLineLexer == null)
+            if (endOfLineLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(endOfLineLexer));
+                throw new ArgumentNullException(nameof(endOfLineLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.alternationLexerFactory = alternationLexerFactory;
-            this.tagLexer = tagLexer;
-            this.commentLexer = commentLexer;
-            this.emptyLexer = emptyLexer;
-            this.uriReferenceLexer = uriReferenceLexer;
-            this.endOfLineLexer = endOfLineLexer;
+            this.tagLexerFactory = tagLexerFactory;
+            this.commentLexerFactory = commentLexerFactory;
+            this.emptyLexerFactory = emptyLexerFactory;
+            this.uriReferenceLexerFactory = uriReferenceLexerFactory;
+            this.endOfLineLexerFactory = endOfLineLexerFactory;
         }
 
-        public ILexer<Line> Create()
+        public static LineLexerFactory Default { get; }
+
+        public override ILexer<Line> Create()
         {
             return
                 new LineLexer(
                     concatenationLexerFactory.Create(
-                        alternationLexerFactory.Create(tagLexer, commentLexer, emptyLexer, uriReferenceLexer),
-                        endOfLineLexer));
+                        alternationLexerFactory.Create(
+                            tagLexerFactory.Create(),
+                            commentLexerFactory.Create(),
+                            emptyLexerFactory.Create(),
+                            uriReferenceLexerFactory.Create()),
+                        endOfLineLexerFactory.Create()));
         }
     }
 }

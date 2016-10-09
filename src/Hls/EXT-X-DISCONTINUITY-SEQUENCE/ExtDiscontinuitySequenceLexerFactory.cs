@@ -5,18 +5,26 @@ using Txt.Core;
 
 namespace Hls.EXT_X_DISCONTINUITY_SEQUENCE
 {
-    public class ExtDiscontinuitySequenceLexerFactory : ILexerFactory<ExtDiscontinuitySequence>
+    public class ExtDiscontinuitySequenceLexerFactory : LexerFactory<ExtDiscontinuitySequence>
     {
         private readonly IConcatenationLexerFactory concatenationLexerFactory;
 
-        private readonly ILexer<DecimalInteger> decimalIntegerLexer;
+        private readonly ILexerFactory<DecimalInteger> decimalIntegerLexerFactory;
 
         private readonly ITerminalLexerFactory terminalLexerFactory;
+
+        static ExtDiscontinuitySequenceLexerFactory()
+        {
+            Default = new ExtDiscontinuitySequenceLexerFactory(
+                ConcatenationLexerFactory.Default,
+                TerminalLexerFactory.Default,
+                DecimalIntegerLexerFactory.Default.Singleton());
+        }
 
         public ExtDiscontinuitySequenceLexerFactory(
             IConcatenationLexerFactory concatenationLexerFactory,
             ITerminalLexerFactory terminalLexerFactory,
-            ILexer<DecimalInteger> decimalIntegerLexer)
+            ILexerFactory<DecimalInteger> decimalIntegerLexerFactory)
         {
             if (concatenationLexerFactory == null)
             {
@@ -26,23 +34,25 @@ namespace Hls.EXT_X_DISCONTINUITY_SEQUENCE
             {
                 throw new ArgumentNullException(nameof(terminalLexerFactory));
             }
-            if (decimalIntegerLexer == null)
+            if (decimalIntegerLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(decimalIntegerLexer));
+                throw new ArgumentNullException(nameof(decimalIntegerLexerFactory));
             }
             this.concatenationLexerFactory = concatenationLexerFactory;
             this.terminalLexerFactory = terminalLexerFactory;
-            this.decimalIntegerLexer = decimalIntegerLexer;
+            this.decimalIntegerLexerFactory = decimalIntegerLexerFactory;
         }
 
-        public ILexer<ExtDiscontinuitySequence> Create()
+        public static ExtDiscontinuitySequenceLexerFactory Default { get; }
+
+        public override ILexer<ExtDiscontinuitySequence> Create()
         {
             return new ExtDiscontinuitySequenceLexer(
                 concatenationLexerFactory.Create(
                     terminalLexerFactory.Create(
                         @"#EXT-X-DISCONTINUITY-SEQUENCE:",
                         StringComparer.Ordinal),
-                    decimalIntegerLexer));
+                    decimalIntegerLexerFactory.Create()));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Hls.playlist
 {
-    public class PlaylistLexerTest : TestBase
+    public class PlaylistLexerTest
     {
     }
 }

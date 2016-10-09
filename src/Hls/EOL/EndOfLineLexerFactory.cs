@@ -6,43 +6,53 @@ using Txt.Core;
 
 namespace Hls.EOL
 {
-    public class EndOfLineLexerFactory : ILexerFactory<EndOfLine>
+    public class EndOfLineLexerFactory : LexerFactory<EndOfLine>
     {
         private readonly IAlternationLexerFactory alternationLexerFactory;
 
-        private readonly ILexer<LineFeed> lineFeedLexer;
+        private readonly ILexerFactory<LineFeed> lineFeedLexerFactory;
 
-        private readonly ILexer<NewLine> newLineLexer;
+        private readonly ILexerFactory<NewLine> newLineLexerFactory;
+
+        static EndOfLineLexerFactory()
+        {
+            Default = new EndOfLineLexerFactory(
+                AlternationLexerFactory.Default,
+                NewLineLexerFactory.Default.Singleton(),
+                LineFeedLexerFactory.Default.Singleton());
+        }
 
         public EndOfLineLexerFactory(
             IAlternationLexerFactory alternationLexerFactory,
-            ILexer<NewLine> newLineLexer,
-            ILexer<LineFeed> lineFeedLexer)
+            ILexerFactory<NewLine> newLineLexerFactory,
+            ILexerFactory<LineFeed> lineFeedLexerFactory)
         {
             if (alternationLexerFactory == null)
             {
                 throw new ArgumentNullException(nameof(alternationLexerFactory));
             }
-            if (newLineLexer == null)
+            if (newLineLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(newLineLexer));
+                throw new ArgumentNullException(nameof(newLineLexerFactory));
             }
-            if (lineFeedLexer == null)
+            if (lineFeedLexerFactory == null)
             {
-                throw new ArgumentNullException(nameof(lineFeedLexer));
+                throw new ArgumentNullException(nameof(lineFeedLexerFactory));
             }
             this.alternationLexerFactory = alternationLexerFactory;
-            this.newLineLexer = newLineLexer;
-            this.lineFeedLexer = lineFeedLexer;
+            this.newLineLexerFactory = newLineLexerFactory;
+            this.lineFeedLexerFactory = lineFeedLexerFactory;
         }
 
-        public ILexer<EndOfLine> Create()
+        public static EndOfLineLexerFactory Default { get; }
+
+        public override ILexer<EndOfLine> Create()
         {
             return
                 new EndOfLineLexer(
                     alternationLexerFactory.Create(
-                        lineFeedLexer,
-                        newLineLexer));
+                        lineFeedLexerFactory.Create(),
+                        newLineLexerFactory.Create()));
         }
     }
 }
