@@ -18,7 +18,21 @@ using UriSyntax.URI_reference;
 
 namespace Hls
 {
-    public class PlaylistWalker : Walker
+    public class PlaylistWalker : Walker,
+                                  IWalker<ExtVersion>,
+                                  IWalker<ExtIFrameStreamInf>,
+                                  IWalker<EndOfLine>,
+                                  IWalker<ExtTargetDuration>,
+                                  IWalker<ExtDiscontinuitySequence>,
+                                  IWalker<ExtDiscontinuity>,
+                                  IWalker<ExtMedia>,
+                                  IWalker<UriReference>,
+                                  IWalker<ExtMediaSequence>,
+                                  IWalker<ExtEndList>,
+                                  IWalker<ExtKey>,
+                                  IWalker<ExtInf>,
+                                  IWalker<ExtStreamInf>,
+                                  IWalker<Playlist>
     {
         private readonly IParser<ExtDiscontinuitySequence, int> discontinuitySequenceParser;
 
@@ -204,6 +218,58 @@ namespace Hls
             }
         }
 
+        public void Enter(EndOfLine element)
+        {
+        }
+
+        public void Enter(ExtVersion element)
+        {
+        }
+
+        public void Enter(UriReference element)
+        {
+        }
+
+        public void Enter(ExtKey element)
+        {
+        }
+
+        public void Exit(ExtInf element)
+        {
+        }
+
+        public void Exit(ExtDiscontinuitySequence element)
+        {
+        }
+
+        public void Exit(ExtDiscontinuity element)
+        {
+        }
+
+        public void Exit(ExtStreamInf element)
+        {
+        }
+
+        public void Exit(ExtMedia element)
+        {
+        }
+
+        public void Exit(ExtTargetDuration element)
+        {
+        }
+
+        public void Exit(ExtEndList element)
+        {
+        }
+
+        public void Exit(ExtMediaSequence element)
+        {
+        }
+
+        public void Exit(ExtIFrameStreamInf element)
+        {
+        }
+
         public void Exit(Playlist playlist)
         {
             Result.IntraFrameStreamsInfo = intraFrameStreamsInfo;
@@ -224,6 +290,23 @@ namespace Hls
                 case PlaylistType.Unknown:
                     throw new InvalidOperationException("A URI-line MUST NOT appear before the first playlist tag.");
             }
+        }
+
+        public void Exit(EndOfLine element)
+        {
+        }
+
+        public void Exit(ExtVersion element)
+        {
+        }
+
+        public void Exit(ExtKey element)
+        {
+        }
+
+        public bool Walk(Playlist element)
+        {
+            return true;
         }
 
         public bool Walk(ExtVersion version)
@@ -274,11 +357,6 @@ namespace Hls
             {
                 mediaSegment.Uri = new Uri(uri.Text, UriKind.RelativeOrAbsolute);
             }
-            return false;
-        }
-
-        public bool Walk(EndOfLine eol)
-        {
             return false;
         }
 
@@ -334,6 +412,11 @@ namespace Hls
                     renditions.FindAll(x => (x.Type == MediaType.Video) && (x.GroupId == variantStream.ClosedCaptions));
             }
             Result.VariantStreams.Add(variantStream);
+            return false;
+        }
+
+        public bool Walk(EndOfLine element)
+        {
             return false;
         }
     }
